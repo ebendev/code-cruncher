@@ -80,6 +80,18 @@ for(my $i = 1; $i < @filenames; $i++) {
   print "\n===> External Source File: $inputpath$filenames[$i] - End <===\n";
 }
 
+#my $test = "silly people do silly things if in silly moods";
+#if($test =~ m/(silly(.*?)moods)/) { print "$1\n"; }
+
+print "\n===> Comments: Extracting... <=============================================\n";
+for(my $i = 0; $i < @filestrings; $i++) {
+  print "[$filenames[$i]]\n";
+  while($filestrings[$i] =~ s/(<!--.*?-->)//s) {
+    print "$1\n";
+  }
+}
+print "\n===> Comments: Extracted! <================================================\n";
+
 print "\n===> Output files: Writing... <============================================\n";
 for(my $i = 0; $i < @filenames; $i++) {
   print "$outputpath$filenames[$i]\n";
