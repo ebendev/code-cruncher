@@ -1,5 +1,6 @@
 #!perl -w
 use strict;
+use FileHandle;
 
 {
   my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile]\n";
@@ -16,37 +17,94 @@ if($ARGV[2]) {
   select LOG;
 }
 
-my @dependency;
-my $filestring = "";
+my @filenames;
+my @filestrings;
+
+my $inputpath;
+my $outputpath;
+
+# do i need additional logic if ..\ prepends the individual file names?
+
+while($ARGV[0] =~ m"((.*\\)+)"g) {
+  $inputpath = $1;
+}
+
+while($ARGV[1] =~ m"((.*\\)+)"g) {
+  $outputpath = $1;
+}
+
+unless(defined($inputpath)) { $inputpath = ""; }
+unless(defined($outputpath)) { $outputpath = ""; }
+
+while($ARGV[1] =~ m"(.*\\)*(.+)"g) {
+  $filenames[0] = $2;
+}
+#$filenames[0] = $ARGV[0];
 
 print "===> CodeCruncher Copyright 2007 Eben Geer <===============================\n";
+print "===> Input path: '$inputpath' <===\n";
+print "===> Output path: '$outputpath' <===\n";
 
-print "\n===> Original File - Start <===============================================\n";
-while(<INPUT>) { $filestring .= $_; }
-print $filestring;
-print "\n===> Original File - End <=================================================\n";
+print "\n===> Original File: $inputpath$filenames[0] - Start <===\n";
+while(<INPUT>) { $filestrings[0] .= $_; }
+print $filestrings[0];
+print "\n===> Original File: $inputpath$filenames[0] - End <===\n";
 
-print "\n===> Leading and trailing whitespace: Removing... <========================\n";
-while(<INPUT>) {
-  s/^\s+//;
-  s/\s+$//;
-  print $_;
+# search for external files only goes one level deep
+
+print "\n===> External source files (.js): Identifying... <=========================\n";
+while($filestrings[0] =~ m/src="(.*\.js)"/sg) {
+  $filenames[@filenames] = $1;
+  print "$inputpath$filenames[@filenames - 1]\n";
 }
-print "\n===> Leading and trailing whitespace: Removed! <===========================\n";
+print "\n===> External source files (.js): Identified! <============================\n";
 
-print "\n===> Comments: Removing... <===============================================\n";
-while(<INPUT>) {
-  s/<!--.*//;
-  s/.*-->//;
-  print $_;
+print "\n===> External source files (.css): Identifying... <========================\n";
+while($filestrings[0] =~ m/url\((.*\.css)\)/sg) {
+  $filenames[@filenames] = $1;
+  print "$inputpath$filenames[@filenames - 1]\n";
 }
-print "\n===> Comments: Removed! <==================================================\n";
+print "\n===> External source files (.css): Identified! <===========================\n";
 
-print "\n===> Writing output file... <==============================================\n";
-while(<INPUT>) {
-  print OUTPUT $_;
+print "\n===> External source files: Opening... <===================================\n";
+#foreach my $el (@filenames) {
+#  open EXTERNAL, "< $inputpath$el" or die "$inputpath$el - $!\n";
+#  $filestrings[@filestrings] = "";
+#  while(<EXTERNAL>) { $filestrings[@filestrings - 1] .= $_; }
+#  close EXTERNAL;
+#  print "$inputpath$el\n";
+#}
+my $fh;
+for(my $i = 1; $i < @filenames; $i++) {
+  $fh = new FileHandle("< $inputpath$filenames[$i]");
+  $filestrings[@filestrings] = "";
+  while(<$fh>) { $filestrings[@filestrings - 1] .= $_; }
+  print "$inputpath$filenames[$i]\n";
 }
-print "\n===> Output file written! <================================================\n";
+#  open EXTERNAL, "< $inputpath$filenames[$i]" or die "$inputpath$filenames[$i] - $!\n";
+#  $filestrings[@filestrings] = "";
+#  while(<EXTERNAL>) { $filestrings[@filestrings - 1] .= $_; }
+#  close EXTERNAL;
+#  print "$inputpath$filenames[$i]\n";
+#}
+print "\n===> (" . scalar @filestrings - 1 . ") External source files: Opened! <==================================\n";
+
+for(my $i = 1; $i < @filenames; $i++) {
+  print "\n===> External Source File: $inputpath$filenames[$i] - Start <===\n";
+  print $filestrings[$i];
+  print "\n===> External Source File: $inputpath$filenames[$i] - End <===\n";
+}
+
+print "\n===> Output files: Writing... <============================================\n";
+#print $ARGV[1] . "\n";
+#print OUTPUT $filestring;
+for(my $i = 0; $i < @filenames; $i++) {
+  print "$outputpath$filenames[$i]\n";
+  open EXTERNAL, "> $outputpath$filenames[$i]" or die "$outputpath$filenames[$i] - $!\n";
+  print EXTERNAL $filestrings[$i];
+  close EXTERNAL;
+}
+print "\n===> Output files: Written! <==============================================\n";
 
 close INPUT;
 close OUTPUT;
