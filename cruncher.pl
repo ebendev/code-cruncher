@@ -39,7 +39,6 @@ unless(defined($outputpath)) { $outputpath = ""; }
 while($ARGV[1] =~ m"(.*\\)*(.+)"g) {
   $filenames[0] = $2;
 }
-#$filenames[0] = $ARGV[0];
 
 print "===> CodeCruncher Copyright 2007 Eben Geer <===============================\n";
 print "===> Input path: '$inputpath' <===\n";
@@ -67,26 +66,12 @@ while($filestrings[0] =~ m/url\((.*\.css)\)/sg) {
 print "\n===> External source files (.css): Identified! <===========================\n";
 
 print "\n===> External source files: Opening... <===================================\n";
-#foreach my $el (@filenames) {
-#  open EXTERNAL, "< $inputpath$el" or die "$inputpath$el - $!\n";
-#  $filestrings[@filestrings] = "";
-#  while(<EXTERNAL>) { $filestrings[@filestrings - 1] .= $_; }
-#  close EXTERNAL;
-#  print "$inputpath$el\n";
-#}
-my $fh;
 for(my $i = 1; $i < @filenames; $i++) {
-  $fh = new FileHandle("< $inputpath$filenames[$i]");
+  my $fh = new FileHandle("< $inputpath$filenames[$i]");
   $filestrings[$i] = "";
   while(<$fh>) { $filestrings[$i] .= $_; }
   print "$inputpath$filenames[$i]\n";
 }
-#  open EXTERNAL, "< $inputpath$filenames[$i]" or die "$inputpath$filenames[$i] - $!\n";
-#  $filestrings[@filestrings] = "";
-#  while(<EXTERNAL>) { $filestrings[@filestrings - 1] .= $_; }
-#  close EXTERNAL;
-#  print "$inputpath$filenames[$i]\n";
-#}
 print "\n===> (" . scalar @filestrings - 1 . ") External source files: Opened! <==================================\n";
 
 for(my $i = 1; $i < @filenames; $i++) {
@@ -96,8 +81,6 @@ for(my $i = 1; $i < @filenames; $i++) {
 }
 
 print "\n===> Output files: Writing... <============================================\n";
-#print $ARGV[1] . "\n";
-#print OUTPUT $filestring;
 for(my $i = 0; $i < @filenames; $i++) {
   print "$outputpath$filenames[$i]\n";
   open EXTERNAL, "> $outputpath$filenames[$i]" or die "$outputpath$filenames[$i] - $!\n";
