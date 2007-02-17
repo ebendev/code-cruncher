@@ -77,8 +77,8 @@ print "\n===> External source files: Opening... <===============================
 my $fh;
 for(my $i = 1; $i < @filenames; $i++) {
   $fh = new FileHandle("< $inputpath$filenames[$i]");
-  $filestrings[@filestrings] = "";
-  while(<$fh>) { $filestrings[@filestrings - 1] .= $_; }
+  $filestrings[$i] = "";
+  while(<$fh>) { $filestrings[$i] .= $_; }
   print "$inputpath$filenames[$i]\n";
 }
 #  open EXTERNAL, "< $inputpath$filenames[$i]" or die "$inputpath$filenames[$i] - $!\n";
