@@ -105,15 +105,23 @@ my @funcnames;
 for(my $i = 0; $i < @filestrings; $i++) {
   while($filestrings[$i] =~ m/function\s+(\w+)\s*\(/g) {
     $funcnames[@funcnames] = $1;
-    print "Identified Function: $funcnames[@funcnames - 1]\n";
+    print "Identified Function: '$funcnames[@funcnames - 1]'\n";
   }
 }
-#for(my $j = 0; $j < @funcnames; $j++) {
-#  for(my $i = 0; $i < @filestrings; $i++) {
-#    $filestrings[$i] =~ s///g;
-#  }
-#  print "df replaced with d";
-#}
+for(my $j = 0; $j < @funcnames; $j++) {
+  #my $abbr = 97 * ($j / 26) + ($j % 26);
+
+  # 0 - number of characters in new abbr
+  my $abbr = "";
+  for(my $k = 0; $k <= $j / 26; $k++) {
+    $abbr .= chr(97 + ($j % 26));
+  }
+
+  for(my $i = 0; $i < @filestrings; $i++) {
+    $filestrings[$i] =~ s/($funcnames[$j])/$abbr/g;
+  }
+  print "'$abbr' substituted for '$funcnames[$j]'\n";
+}
 print "\n===> Functions: Renamed! <=================================================\n";
 
 print "\n===> Whitespace: Extracting... <===========================================\n";
