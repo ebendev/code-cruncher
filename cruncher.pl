@@ -86,20 +86,47 @@ for(my $i = 1; $i < @filenames; $i++) {
 print "\n===> Comments: Extracting... <=============================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
+
   # HTML-style comments <!-- -->
-  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) {
-    print "$1\n";
-  }
+  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { print "$1\n"; }
+
   # C-style block comments /* */
-  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) {
-    print "$1\n";
-  }
-  # C++ style single-line comments //
-  while($filestrings[$i] =~ s"(\s//.*)"") {
-    print "$1\n";
-  }
+  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { print "$1\n"; }
+
+  # C++ style single-line comments // - and then ;//
+  while($filestrings[$i] =~ s"(^//.*)"") { print "$1\n"; }
+  while($filestrings[$i] =~ s"(\s//.*)"") { print "$1\n"; }
+  while($filestrings[$i] =~ s";(//.*)";") { print "$1\n"; }
 }
 print "\n===> Comments: Extracted! <================================================\n";
+
+print "\n===> Whitespace: Extracting... <=============================================\n";
+for(my $i = 0; $i < @filestrings; $i++) {
+  # = + -
+  $filestrings[$i] =~ s/\s*=\s*/=/g;
+  $filestrings[$i] =~ s/\s*\+\s*/\+/g;
+  $filestrings[$i] =~ s/\s*-\s*/-/g;
+
+  # < > || &&
+  $filestrings[$i] =~ s/\s*<\s*/</g;
+  $filestrings[$i] =~ s/\s*>\s*/>/g;
+  $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
+  $filestrings[$i] =~ s/\s*\&\&\s*/\&\&/g;
+
+  # ( ) { }
+  $filestrings[$i] =~ s/\s*\(\s*/\(/g;
+  $filestrings[$i] =~ s/\s*\)\s*/\)/g;
+  $filestrings[$i] =~ s/\s*\{\s*/\{/g;
+  $filestrings[$i] =~ s/\s*\}\s*/\}/g;
+
+  # leading and trailing whitespace
+  $filestrings[$i] =~ s/;\s+/;/g;
+  $filestrings[$i] =~ s/\n\s*//g;
+
+  print "[$filenames[$i]]\n";
+  print "$filestrings[$i]\n";
+}
+print "\n===> Whitespace: Extracted! <================================================\n";
 
 print "\n===> Output files: Writing... <============================================\n";
 for(my $i = 0; $i < @filenames; $i++) {
