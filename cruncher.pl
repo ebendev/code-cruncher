@@ -100,7 +100,23 @@ for(my $i = 0; $i < @filestrings; $i++) {
 }
 print "\n===> Comments: Extracted! <================================================\n";
 
-print "\n===> Whitespace: Extracting... <=============================================\n";
+print "\n===> Functions: Renaming... <==============================================\n";
+my @funcnames;
+for(my $i = 0; $i < @filestrings; $i++) {
+  while($filestrings[$i] =~ m/function\s+(\w+)\s*\(/g) {
+    $funcnames[@funcnames] = $1;
+    print "Identified Function: $funcnames[@funcnames - 1]\n";
+  }
+}
+#for(my $j = 0; $j < @funcnames; $j++) {
+#  for(my $i = 0; $i < @filestrings; $i++) {
+#    $filestrings[$i] =~ s///g;
+#  }
+#  print "df replaced with d";
+#}
+print "\n===> Functions: Renamed! <=================================================\n";
+
+print "\n===> Whitespace: Extracting... <===========================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
   # = + -
   $filestrings[$i] =~ s/\s*=\s*/=/g;
@@ -126,7 +142,7 @@ for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
   print "$filestrings[$i]\n";
 }
-print "\n===> Whitespace: Extracted! <================================================\n";
+print "\n===> Whitespace: Extracted! <==============================================\n";
 
 print "\n===> Output files: Writing... <============================================\n";
 for(my $i = 0; $i < @filenames; $i++) {
