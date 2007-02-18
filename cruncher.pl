@@ -2,6 +2,15 @@
 use strict;
 use FileHandle;
 
+#a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
+#0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+sub alphabase {
+  use integer;
+  my($num) = @_;
+  if($num / 26) { return alphabase($num / 26) . alphabase($num % 26); }
+  else { return chr(97 + $num % 26); }
+}
+
 {
   my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile]\n";
   die "Input $errstr" if @ARGV < 1;
@@ -108,19 +117,15 @@ for(my $i = 0; $i < @filestrings; $i++) {
     print "Identified Function: '$funcnames[@funcnames - 1]'\n";
   }
 }
+my @abbr;
+for(my $k = 0; $k < @funcnames; $k++) {
+  $abbr[$k] = alphabase($k);
+}
 for(my $j = 0; $j < @funcnames; $j++) {
-  #my $abbr = 97 * ($j / 26) + ($j % 26);
-
-  # 0 - number of characters in new abbr
-  my $abbr = "";
-  for(my $k = 0; $k <= $j / 26; $k++) {
-    $abbr .= chr(97 + ($j % 26));
-  }
-
   for(my $i = 0; $i < @filestrings; $i++) {
-    $filestrings[$i] =~ s/($funcnames[$j])/$abbr/g;
+    $filestrings[$i] =~ s/($funcnames[$j])/$abbr[$j]/g;
   }
-  print "'$abbr' substituted for '$funcnames[$j]'\n";
+  print "'$abbr[$j]' substituted for '$funcnames[$j]'\n";
 }
 print "\n===> Functions: Renamed! <=================================================\n";
 
