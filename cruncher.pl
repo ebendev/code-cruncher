@@ -86,7 +86,9 @@ for(my $i = 1; $i < @filenames; $i++) {
 print "\n===> Comments: Extracting... <=============================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
-  while($filestrings[$i] =~ s/(<!--.*?-->)//s) {
+  while($filestrings[$i] =~ s/(<!--(?=.{1,10}import).*?-->)//s) {
+    #if($1 =~ m/import url\(.*?\);/s) { $filestrings[$i] = "$`$&$'"; }
+    #else { print "$1\n"; }
     print "$1\n";
   }
 }
