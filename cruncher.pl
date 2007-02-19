@@ -187,31 +187,31 @@ for(my $i = 0; $i < @filenames; $i++) {
 }
 
 print "\n===> Whitespace: Extracting... <===========================================\n";
-#for(my $i = 0; $i < @filestrings; $i++) {
-#  # = + -
-#  $filestrings[$i] =~ s/\s*=\s*/=/g;
-#  $filestrings[$i] =~ s/\s*\+\s*/\+/g;
-#  $filestrings[$i] =~ s/\s*-\s*/-/g;
-#
-#  # < > || &&
-#  $filestrings[$i] =~ s/\s*<\s*/</g;
-#  $filestrings[$i] =~ s/\s*>\s*/>/g;
-#  $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
-#  $filestrings[$i] =~ s/\s*\&\&\s*/\&\&/g;
-#
-#  # ( ) { }
-#  $filestrings[$i] =~ s/\s*\(\s*/\(/g;
-#  $filestrings[$i] =~ s/\s*\)\s*/\)/g;
-#  $filestrings[$i] =~ s/\s*\{\s*/\{/g;
-#  $filestrings[$i] =~ s/\s*\}\s*/\}/g;
-#
-#  # leading and trailing whitespace
-#  $filestrings[$i] =~ s/;\s+/;/g;
-#  $filestrings[$i] =~ s/\n\s*//g;
-#
-#  print "[$filenames[$i]]\n";
-#  print "$filestrings[$i]\n";
-#}
+for(my $i = 0; $i < @filestrings; $i++) {
+  # = + -
+  $filestrings[$i] =~ s/\s*=\s*/=/g;
+  $filestrings[$i] =~ s/\s*\+\s*/\+/g;
+  $filestrings[$i] =~ s/\s*-\s*/-/g;
+
+  # < > || &&
+  $filestrings[$i] =~ s/\s*<\s*/</g;
+  $filestrings[$i] =~ s/\s*>\s*/>/g;
+  $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
+  $filestrings[$i] =~ s/\s*\&\&\s*/\&\&/g;
+
+  # ( ) { }
+  $filestrings[$i] =~ s/\s*\(\s*/\(/g;
+  $filestrings[$i] =~ s/\s*\)\s*/\)/g;
+  $filestrings[$i] =~ s/\s*\{\s*/\{/g;
+  $filestrings[$i] =~ s/\s*\}\s*/\}/g;
+
+  # leading and trailing whitespace
+  $filestrings[$i] =~ s/;\s+/;/g;
+  $filestrings[$i] =~ s/\n\s*//g;
+
+  print "[$filenames[$i]]\n";
+  print "$filestrings[$i]\n";
+}
 print "\n===> Whitespace: Extracted! <==============================================\n";
 print "\n===> Output files: Writing... <============================================\n";
 for(my $i = 0; $i < @filenames; $i++) {
