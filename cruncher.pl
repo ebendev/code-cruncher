@@ -66,14 +66,12 @@ while($filestrings[0] =~ m/src="(.*\.js)"/sg) {
   print "$inputpath$filenames[@filenames - 1]\n";
 }
 print "\n===> External source files (.js): Identified! <============================\n";
-
 print "\n===> External source files (.css): Identifying... <========================\n";
 while($filestrings[0] =~ m/url\((.*\.css)\)/sg) {
   $filenames[@filenames] = $1;
   print "$inputpath$filenames[@filenames - 1]\n";
 }
 print "\n===> External source files (.css): Identified! <===========================\n";
-
 print "\n===> External source files: Opening... <===================================\n";
 for(my $i = 1; $i < @filenames; $i++) {
   my $fh = new FileHandle("< $inputpath$filenames[$i]");
@@ -88,9 +86,6 @@ for(my $i = 1; $i < @filenames; $i++) {
   print $filestrings[$i];
   print "\n===> External Source File: $inputpath$filenames[$i] - End <===\n";
 }
-
-#my $test = "silly people do silly things if in silly moods";
-#if($test =~ m/(silly(.*?)moods)/) { print "$1\n"; }
 
 print "\n===> Comments: Extracting... <=============================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
@@ -108,55 +103,72 @@ for(my $i = 0; $i < @filestrings; $i++) {
   while($filestrings[$i] =~ s";(//.*)";") { print "$1\n"; }
 }
 print "\n===> Comments: Extracted! <================================================\n";
-
-print "\n===> Functions: Renaming... <==============================================\n";
-my @funcnames;
+print "\n===> Functions, Variables, and ID's: Identifying... <======================\n";
+my @names;
 for(my $i = 0; $i < @filestrings; $i++) {
-  while($filestrings[$i] =~ m/function\s+(\w+)\s*\(/g) {
-    $funcnames[@funcnames] = $1;
-    print "Identified Function: '$funcnames[@funcnames - 1]'\n";
+  print "[$filenames[$i]]\n";
+  while($filestrings[$i] =~ m/var\s+(\w+)/g) {
+    $names[@names] = $1;
+    print "Identified Variable: '$names[@names - 1]'\n";
   }
+  while($filestrings[$i] =~ m/function\s+(\w+)\s*\(/g) {
+    $names[@names] = $1;
+    print "Identified Function: '$names[@names - 1]'\n";
+  }
+  #while($filestrings[$i] =~ m/id="(\w+)"/g) {
+  #  $names[@names] = $1;
+  #  print "Identified ID: '$names[@names - 1]'\n";
+  #}
 }
+print "\n===> Functions, Variables, and ID's: Identified! <=========================\n";
+print "\n===> Functions, Variables, and ID's: Renaming... <=========================\n";
 my @abbr;
-for(my $k = 0; $k < @funcnames; $k++) {
+for(my $k = 0; $k < @names; $k++) {
   $abbr[$k] = alphabase($k);
 }
-for(my $j = 0; $j < @funcnames; $j++) {
+for(my $j = 0; $j < @names; $j++) {
   for(my $i = 0; $i < @filestrings; $i++) {
-    $filestrings[$i] =~ s/($funcnames[$j])/$abbr[$j]/g;
+    #$filestrings[$i] =~ s/(?<![^\s\-\+\*\/=])($names[$j])(?![^\s\-\+\*\/=])/$abbr[$j]/g;
+    #$filestrings[$i] =~ s/(?<=[\s\-\+\*\/\=\;\(\[\.\,])($names[$j])(?=[\s\-\+\*\/\=\;\(\)\]\.\,])/$abbr[$j]/g;
+    $filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?![\w>])/$abbr[$j]/g;
   }
-  print "'$abbr[$j]' substituted for '$funcnames[$j]'\n";
+  print "'$abbr[$j]' substituted for '$names[$j]'\n";
 }
-print "\n===> Functions: Renamed! <=================================================\n";
+print "\n===> Functions, Variables, and ID's: Renamed! <============================\n";
+
+for(my $i = 0; $i < @filenames; $i++) {
+  print "\n===> Source File Before Whitespace Removal: $inputpath$filenames[$i] - Start <===\n";
+  print $filestrings[$i];
+  print "\n===> Source File Before Whitespace Removal: $inputpath$filenames[$i] - End <===\n";
+}
 
 print "\n===> Whitespace: Extracting... <===========================================\n";
-for(my $i = 0; $i < @filestrings; $i++) {
-  # = + -
-  $filestrings[$i] =~ s/\s*=\s*/=/g;
-  $filestrings[$i] =~ s/\s*\+\s*/\+/g;
-  $filestrings[$i] =~ s/\s*-\s*/-/g;
-
-  # < > || &&
-  $filestrings[$i] =~ s/\s*<\s*/</g;
-  $filestrings[$i] =~ s/\s*>\s*/>/g;
-  $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
-  $filestrings[$i] =~ s/\s*\&\&\s*/\&\&/g;
-
-  # ( ) { }
-  $filestrings[$i] =~ s/\s*\(\s*/\(/g;
-  $filestrings[$i] =~ s/\s*\)\s*/\)/g;
-  $filestrings[$i] =~ s/\s*\{\s*/\{/g;
-  $filestrings[$i] =~ s/\s*\}\s*/\}/g;
-
-  # leading and trailing whitespace
-  $filestrings[$i] =~ s/;\s+/;/g;
-  $filestrings[$i] =~ s/\n\s*//g;
-
-  print "[$filenames[$i]]\n";
-  print "$filestrings[$i]\n";
-}
+#for(my $i = 0; $i < @filestrings; $i++) {
+#  # = + -
+#  $filestrings[$i] =~ s/\s*=\s*/=/g;
+#  $filestrings[$i] =~ s/\s*\+\s*/\+/g;
+#  $filestrings[$i] =~ s/\s*-\s*/-/g;
+#
+#  # < > || &&
+#  $filestrings[$i] =~ s/\s*<\s*/</g;
+#  $filestrings[$i] =~ s/\s*>\s*/>/g;
+#  $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
+#  $filestrings[$i] =~ s/\s*\&\&\s*/\&\&/g;
+#
+#  # ( ) { }
+#  $filestrings[$i] =~ s/\s*\(\s*/\(/g;
+#  $filestrings[$i] =~ s/\s*\)\s*/\)/g;
+#  $filestrings[$i] =~ s/\s*\{\s*/\{/g;
+#  $filestrings[$i] =~ s/\s*\}\s*/\}/g;
+#
+#  # leading and trailing whitespace
+#  $filestrings[$i] =~ s/;\s+/;/g;
+#  $filestrings[$i] =~ s/\n\s*//g;
+#
+#  print "[$filenames[$i]]\n";
+#  print "$filestrings[$i]\n";
+#}
 print "\n===> Whitespace: Extracted! <==============================================\n";
-
 print "\n===> Output files: Writing... <============================================\n";
 for(my $i = 0; $i < @filenames; $i++) {
   print "$outputpath$filenames[$i]\n";
