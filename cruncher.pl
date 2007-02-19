@@ -2,6 +2,9 @@
 use strict;
 use FileHandle;
 
+my @names;
+my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
+
 #a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
 #0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
 sub alphabase {
@@ -9,6 +12,26 @@ sub alphabase {
   my($num) = @_;
   if($num / 26) { return alphabase($num / 26) . alphabase($num % 26); }
   else { return chr(97 + $num % 26); }
+}
+
+sub isKeyword {
+  my ($str) = @_;
+
+  for(my $i = 0; $i < @names; $i++) {
+    if($str eq $names[$i]) { return 1; }
+  }
+
+  if($str eq "do") { return 1; }
+  elsif($str eq "for") { return 1; }
+  else { return 0; }
+}
+
+sub isAvoid {
+  my ($str) = @_;
+
+  foreach my $el (@avoid) {
+    return 1 if $el eq $str;
+  }
 }
 
 {
@@ -104,33 +127,54 @@ for(my $i = 0; $i < @filestrings; $i++) {
 }
 print "\n===> Comments: Extracted! <================================================\n";
 print "\n===> Functions, Variables, and ID's: Identifying... <======================\n";
-my @names;
 for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
   while($filestrings[$i] =~ m/var\s+(\w+)/g) {
-    $names[@names] = $1;
+    #if($1 ne "rows") { $names[@names] = $1; }
+    #$names[@names] = $1;
+    $names[@names] = $1 unless(isAvoid($1));
     print "Identified Variable: '$names[@names - 1]'\n";
   }
+}
+for(my $i = 0; $i < @filestrings; $i++) {
+  print "[$filenames[$i]]\n";
   while($filestrings[$i] =~ m/function\s+(\w+)\s*\(/g) {
-    $names[@names] = $1;
+    $names[@names] = $1 unless(isAvoid($1));
     print "Identified Function: '$names[@names - 1]'\n";
   }
-  #while($filestrings[$i] =~ m/id="(\w+)"/g) {
-  #  $names[@names] = $1;
-  #  print "Identified ID: '$names[@names - 1]'\n";
-  #}
+}
+for(my $i = 0; $i < @filestrings; $i++) {
+  print "[$filenames[$i]]\n";
+  while($filestrings[$i] =~ m/id="(\w+)"/g) {
+    $names[@names] = $1 unless(isAvoid($1));
+    print "Identified ID: '$names[@names - 1]'\n";
+  }
+}
+for(my $i = 0; $i < @filestrings; $i++) {
+  print "[$filenames[$i]]\n";
+  while($filestrings[$i] =~ m/(?<!meta )name="(\w+)"/g) {
+    $names[@names] = $1 unless(isAvoid($1));
+    print "Identified ID: '$names[@names - 1]'\n";
+  }
 }
 print "\n===> Functions, Variables, and ID's: Identified! <=========================\n";
 print "\n===> Functions, Variables, and ID's: Renaming... <=========================\n";
 my @abbr;
-for(my $k = 0; $k < @names; $k++) {
-  $abbr[$k] = alphabase($k);
+my $n = @names;
+my $offset = 0;
+for(my $k = 0; $k < $n; $k++) {
+  while(isKeyword($abbr[$k] = alphabase($k + $offset))) {
+    $offset++;
+  }
 }
 for(my $j = 0; $j < @names; $j++) {
   for(my $i = 0; $i < @filestrings; $i++) {
     #$filestrings[$i] =~ s/(?<![^\s\-\+\*\/=])($names[$j])(?![^\s\-\+\*\/=])/$abbr[$j]/g;
     #$filestrings[$i] =~ s/(?<=[\s\-\+\*\/\=\;\(\[\.\,])($names[$j])(?=[\s\-\+\*\/\=\;\(\)\]\.\,])/$abbr[$j]/g;
-    $filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?![\w>])/$abbr[$j]/g;
+    #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?![\w>])/$abbr[$j]/g;
+    #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])/$abbr[$j]/g;
+    #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
+    $filestrings[$i] =~ s/(?<![\w<])($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
   }
   print "'$abbr[$j]' substituted for '$names[$j]'\n";
 }
