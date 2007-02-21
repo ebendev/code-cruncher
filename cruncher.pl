@@ -236,7 +236,7 @@ for(my $j = 0; $j < @names; $j++) {
     #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?![\w>])/$abbr[$j]/g;
     #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])/$abbr[$j]/g;
     #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
-    $filestrings[$i] =~ s/(?<![\w<])($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
+    $filestrings[$i] =~ s/(?<![\w'<])($names[$j])(?! ?[\w'])(?![>])/$abbr[$j]/g;
   }
   print "'$abbr[$j]' substituted for '$names[$j]'\n";
 }
@@ -251,9 +251,9 @@ for(my $i = 0; $i < @filenames; $i++) {
 print "\n===> Whitespace: Extracting... <===========================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
   # = + -
-  $filestrings[$i] =~ s/\s*=\s*/=/g;
-  $filestrings[$i] =~ s/\s*\+\s*/\+/g;
-  $filestrings[$i] =~ s/\s*-\s*/-/g;
+  $filestrings[$i] =~ s/(?<!')\s*=\s*(?!')/=/g;
+  $filestrings[$i] =~ s/(?<!')\s*\+\s*(?!')/\+/g;
+  $filestrings[$i] =~ s/(?<!')\s*-\s*(?!')/-/g;
 
   # < > || &&
   $filestrings[$i] =~ s/\s*<\s*/</g;
@@ -290,7 +290,7 @@ print "\n===> Output files: Written! <==========================================
   while(<TESTIN>) { $teststring .= $_; }
   close TESTIN;
   for(my $j = 0; $j < @names; $j++) {
-    $teststring =~ s/(?<![\w<])($names[$j])(?! ?[\w"])(?![>])/$abbr[$j]/g;
+    $teststring =~ s/(?<![\w"<])($names[$j])(?! ?[\w"])(?![>])/$abbr[$j]/g;
     print "'$abbr[$j]' substituted for '$names[$j]'\n";
   }
   open TESTOUT, "> $outputAbsPath$testRelPath" or die "$outputAbsPath$testRelPath - $!\n";
