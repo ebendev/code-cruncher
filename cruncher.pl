@@ -35,7 +35,7 @@ sub isAvoid {
 }
 
 {
-  my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile]\n";
+  my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile] [optional_test_module]\n";
   die "Input $errstr" if @ARGV < 1;
   die "Output $errstr" if @ARGV < 2;
 }
@@ -48,12 +48,18 @@ if($ARGV[2]) {
   open LOG, "> $ARGV[2]";
   select LOG;
 }
+if($ARGV[3]) {
+  open TESTS, "< $ARGV[3]";
+}
 
 my @filenames;
 my @filestrings;
 
 my $inputpath;
 my $outputpath;
+my $testspath;
+my $testmodstring;
+#my $testfile;
 
 # do i need additional logic if ..\ prepends the individual file names?
 
@@ -64,9 +70,19 @@ while($ARGV[0] =~ m"((.*\\)+)"g) {
 while($ARGV[1] =~ m"((.*\\)+)"g) {
   $outputpath = $1;
 }
+if(defined($ARGV[3])) {
+  if(index($inputpath, $ARGV[3]) == 0) {
+    $testspath = substr($ARGV[3], length($inputpath));
+    print index($inputpath, $ARGV[3]);
+  }
+
+  #$ARGV[3] =~ s/($inputpath)//;
+  #$testspath = $ARGV[3];
+}
 
 unless(defined($inputpath)) { $inputpath = ""; }
 unless(defined($outputpath)) { $outputpath = ""; }
+unless(defined($testspath)) { $testspath = ""; }
 
 while($ARGV[1] =~ m"(.*\\)*(.+)"g) {
   $filenames[0] = $2;
@@ -75,6 +91,9 @@ while($ARGV[1] =~ m"(.*\\)*(.+)"g) {
 print "===> CodeCruncher Copyright 2007 Eben Geer <===============================\n";
 print "===> Input path: '$inputpath' <===\n";
 print "===> Output path: '$outputpath' <===\n";
+if(defined($ARGV[3])) {
+  print "===> Test module path: '$testspath' <===\n";
+}
 
 print "\n===> Original File: $inputpath$filenames[0] - Start <===\n";
 while(<INPUT>) { $filestrings[0] .= $_; }
@@ -221,6 +240,18 @@ for(my $i = 0; $i < @filenames; $i++) {
   close EXTERNAL;
 }
 print "\n===> Output files: Written! <==============================================\n";
+
+if(defined($ARGV[3])) {
+  print "\n===> Test Module: Updating... <============================================\n";
+  while(<TESTS>) { $testmodstring .= $_; }
+  for(my $j = 0; $j < @names; $j++) {
+    $testmodstring =~ s/(?<![\w<])($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
+    print "'$abbr[$j]' substituted for '$names[$j]'\n";
+  }
+  print "\n===> Test Module: Updated! <===============================================\n";
+}
+
+print "\n===> CodeCruncher Finished! <==============================================\n";
 
 close INPUT;
 close OUTPUT;
