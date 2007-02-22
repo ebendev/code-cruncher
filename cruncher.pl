@@ -13,7 +13,8 @@ my $indexRelPath;
 my $testRelPath;
 
 my @names; # all identifiers in the general namespace: functions, variables, ids
-my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
+#my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
+my @avoid = qw(rows ControlsDiv); # list of strings not to crunch
 
  # Source files
 my @filenames;
@@ -236,7 +237,8 @@ for(my $j = 0; $j < @names; $j++) {
     #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?![\w>])/$abbr[$j]/g;
     #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])/$abbr[$j]/g;
     #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
-    $filestrings[$i] =~ s/(?<![\w'<])($names[$j])(?! ?[\w'])(?![>])/$abbr[$j]/g;
+    #$filestrings[$i] =~ s/(?<![\w'<])($names[$j])(?! ?[\w'])(?![>])/$abbr[$j]/g;
+    $filestrings[$i] =~ s/(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
   }
   print "'$abbr[$j]' substituted for '$names[$j]'\n";
 }
