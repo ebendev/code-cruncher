@@ -14,7 +14,7 @@ my $testRelPath;
 
 my @names; # all identifiers in the general namespace: functions, variables, ids
 #my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
-my @avoid = qw(rows ControlsDiv); # list of strings not to crunch
+my @avoid = qw(rows ControlsDiv FooterDiv); # list of strings not to crunch
 
  # Source files
 my @filenames;
@@ -43,6 +43,7 @@ sub isKeyword {
   }
 
   if($str eq "do") { return 1; }
+  elsif($str eq "if") { return 1; }
   elsif($str eq "for") { return 1; }
   else { return 0; }
 }
