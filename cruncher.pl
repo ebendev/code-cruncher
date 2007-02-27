@@ -14,7 +14,7 @@ my $testRelPath;
 
 my @names; # all identifiers in the general namespace: functions, variables, ids
 #my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
-my @avoid = qw(rows); # list of strings not to crunch
+my @avoid = qw(); # list of strings not to crunch
 
  # Source files
 my @filenames;
@@ -251,6 +251,7 @@ for(my $i = 0; $i < @filenames; $i++) {
   print "\n===> Source File Before Whitespace Removal: $inputAbsPath$filenames[$i] - End <===\n";
 }
 
+if(0) {
 print "\n===> Whitespace: Extracting... <===========================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
   # = + -
@@ -276,6 +277,7 @@ for(my $i = 0; $i < @filestrings; $i++) {
 
   print "[$filenames[$i]]\n";
   print "$filestrings[$i]\n";
+}
 }
 print "\n===> Whitespace: Extracted! <==============================================\n";
 print "\n===> Output files: Writing... <============================================\n";
