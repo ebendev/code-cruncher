@@ -148,13 +148,13 @@ print "\n===> Original File: $inputAbsPath$filenames[0] - End <===\n";
 # search for external files only goes one level deep
 
 print "\n===> External source files (.js): Identifying... <=========================\n";
-while($filestrings[0] =~ m/src="(.*\.js)"/sg) {
+while($filestrings[0] =~ m/src="(.*\.js)"/g) {
   $filenames[@filenames] = $1;
   print "$inputAbsPath$filenames[@filenames - 1]\n";
 }
 print "\n===> External source files (.js): Identified! <============================\n";
 print "\n===> External source files (.css): Identifying... <========================\n";
-while($filestrings[0] =~ m/url\((.*\.css)\)/sg) {
+while($filestrings[0] =~ m/url\((.*\.css)\)/g) {
   $filenames[@filenames] = $1;
   print "$inputAbsPath$filenames[@filenames - 1]\n";
 }
