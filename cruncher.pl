@@ -38,14 +38,20 @@ sub alphabase {
 sub isKeyword {
   my ($str) = @_;
 
-  for(my $i = 0; $i < @names; $i++) {
-    if($str eq $names[$i]) { return 1; }
-  }
+  if(isCollision($str)) { return 1; }
 
   if($str eq "do") { return 1; }
   elsif($str eq "if") { return 1; }
   elsif($str eq "for") { return 1; }
   else { return 0; }
+}
+
+sub isCollision {
+  my ($str) = @_;
+
+  for(my $i = 0; $i < @names; $i++) {
+    if($str eq $names[$i]) { return 1; }
+  }
 }
 
 sub isAvoid {
