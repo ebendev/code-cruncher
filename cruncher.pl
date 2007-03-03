@@ -69,7 +69,7 @@ my $warningsOn = 1; # default On
 
 my $rootPath;
 my @updatePaths;
-my $logPath = "log.html"; # default
+my $logPath;
 my $profilePath;
 
 ### -> Script Execution Entry Point <- #################################################################################
@@ -83,22 +83,38 @@ my $profilePath;
 ## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
 ##                  will override those found in the profile
 ##################################################################################################################################
-die "Root page not specified.  Correct form is:\n\$ cruncher.pl -root:path/to/index.html/or/equivalent\n" if @ARGV < 1;
 
 # Load profile, if present
 
-print @ARGV;
 print "\n";
+#print @ARGV;
+#print "\n\n";
 
 foreach my $el (@ARGV) {
   if($el =~ /-ws(?!.)/) { $crunchWS = 1; }
   elsif($el =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
   elsif($el =~ /--no-warnings/) { $warningsOn = 0; }
-  elsif($el =~ /-root:(.+)/) { $rootPath = $1; }
+  elsif($el =~ /-root:(.+)/) {
+    if(defined($rootPath)) { print "$el ignored. You may only specify one root.\n"; }
+    else { $rootPath = $1; }
+  }
   elsif($el =~ /-update:(.+)/) { $updatePaths[@updatePaths] = $1; }
-  elsif($el =~ /-log:(.+)/) { $logPath = $1; }
-  elsif($el =~ /-profile:(.+)/) { $profilePath = $1; }
-  else { print "Unrecognized option '$el'\n"; }
+  elsif($el =~ /-log:(.+)/) {
+    if(defined($logPath)) { print "$el ignored. You may only specify one log file.\n"; }
+    else { $logPath = $1; }
+  }
+  elsif($el =~ /-profile:(.+)/) {
+    if(defined($profilePath)) { print "$el ignored. You may only specify one profile.\n"; }
+    else { $profilePath = $1; }
+  }
+  else { print "'$el' ignored. Unrecognized option.\n"; }
+}
+print "\n";
+if(!defined($logPath)) { $logPath = "log.html"; }
+
+if(@ARGV < 1 or !defined($rootPath)) {
+  print "\nRoot page not specified.  Correct form is:\n\$ cruncher.pl -root:path/to/index.html/or/equivalent\n";
+  exit 1;
 }
 
 print "crunchNames = $crunchNames\n";
@@ -108,11 +124,12 @@ if(defined($rootPath)) { print "rootPath = $rootPath\n"; }
 if(@updatePaths > 0) {
   print "updatePaths = ";
   print @updatePaths;
+  print "\n";
 }
-if(defined($logPath)) { print "\nlogPath = $logPath"; }
+if(defined($logPath)) { print "logPath = $logPath\n"; }
 if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
 
-
+print "\n";
 
 ### Load Config #################
 #{
