@@ -7,21 +7,21 @@ use FileHandle;
 
 ### Globals ######################
  # Path strings
-#my $inputAbsPath;
-#my $outputAbsPath;
-#my $indexRelPath;
-#my $testRelPath;
-#
-#my @names; # all identifiers in the general namespace: functions, variables, ids
-##my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
-#my @avoid = qw(); # list of strings not to crunch
-#
+my $inputAbsPath;
+my $outputAbsPath;
+my $indexRelPath;
+my $testRelPath;
+
+my @names; # all identifiers in the general namespace: functions, variables, ids
+#my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
+my @avoid = qw(); # list of strings not to crunch
+
  # Source files
 my @filenames;
 my @filestrings;
-#
-# # Test module
-#my $teststring;
+
+ # Test module
+my $teststring;
 
 
 ### Subroutines ######################
@@ -29,56 +29,53 @@ sub printBreak {
   my ($str, $console, $logfile) = @_;
   my $i = 0;
   if($console) {
-    print "\n===> $str <";
+    print "===> $str <";
     print "=" while($i++ < 70 - length $str);
     print "\n";
   }
   $i = 0;
   if(defined $logfile) {
-    print $logfile "\n===> $str <";
+    print $logfile "===> $str <";
     print $logfile "=" while($i++ < 70 - length $str);
     print $logfile "\n";
   }
 }
 
+#a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
+#0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+sub alphabase {
+  use integer;
+  my($num) = @_;
+  if($num / 26) { return alphabase($num / 26) . alphabase($num % 26); }
+  else { return chr(97 + $num % 26); }
+}
 
+sub isKeyword {
+  my ($str) = @_;
 
+  return 1 if isCollision($str);
 
-##a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
-##0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
-#sub alphabase {
-#  use integer;
-#  my($num) = @_;
-#  if($num / 26) { return alphabase($num / 26) . alphabase($num % 26); }
-#  else { return chr(97 + $num % 26); }
-#}
-#
-#sub isKeyword {
-#  my ($str) = @_;
-#
-#  return 1 if isCollision($str);
-#
-#  if($str eq "do") { return 1; }
-#  elsif($str eq "if") { return 1; }
-#  elsif($str eq "for") { return 1; }
-#  else { return 0; }
-#}
-#
-#sub isCollision {
-#  my ($str) = @_;
-#
-#  foreach my $el (@names) {
-#    return 1 if $str eq $el;
-#  }
-#}
-#
-#sub isAvoid {
-#  my ($str) = @_;
-#
-#  foreach my $el (@avoid) {
-#    return 1 if $str eq $el;
-#  }
-#}
+  if($str eq "do") { return 1; }
+  elsif($str eq "if") { return 1; }
+  elsif($str eq "for") { return 1; }
+  else { return 0; }
+}
+
+sub isCollision {
+  my ($str) = @_;
+
+  foreach my $el (@names) {
+    return 1 if $str eq $el;
+  }
+}
+
+sub isAvoid {
+  my ($str) = @_;
+
+  foreach my $el (@avoid) {
+    return 1 if $str eq $el;
+  }
+}
 
 # Command line variables
 my $crunchNames = 1; # default On
@@ -162,6 +159,7 @@ print "\n";
 #  undef $fh; # automatically closes the file
 #}
 
+$rootPath =~ s/\\/\//g;
 if(!defined($logPath)) { $logPath = "log.html"; }
 
 if(@ARGV < 1 or !defined($rootPath)) {
@@ -189,9 +187,10 @@ print "\n";
 # Open root
 my $rootStr;
 {
-  my $fh = new FileHandle "< $rootPath";
+  $rootPath =~ s/\\/\//g;
+  my $fh = new FileHandle "<$rootPath";
   if(!defined($fh)) {
-    print "Could not open root page: '$rootPath\n\nExiting...\n\n";
+    print "Could not open root page: '$rootPath'\n\nExiting...\n\n";
     exit 1;
   }
   while(<$fh>) { $rootStr .= $_; }
@@ -209,15 +208,24 @@ my $log;
 }
 
 
-if($rootPath =~ /([^\/]+)(?!\/)/) {
+#if($rootPath =~ /([^\/]+)(?!\/)/) {
+if($rootPath =~ /([^\/]+)$/) {
   $filenames[0] = $1;
+  #my $temp = $filenames[0];
+  if($rootPath =~ /(.*)\/$filenames[0]/) {
+  #if($rootPath =~ /(.*)($temp)/) {
+    #print "hey$1";
+    $inputAbsPath = $1;
+  }
+  #else { print "what?"; }
 }
 
 
 printBreak("CodeCruncher Copyright 2007 Eben Geer", $verbose, $log);
+printBreak("Input Path: $inputAbsPath", $verbose, $log);
 printBreak("Original Root Page - $filenames[0] - Start", $verbose, $log);
-print $log $rootStr if defined $log;
-print $rootStr if $verbose;
+print $log $rootStr . "\n" if defined $log;
+print $rootStr . "\n" if $verbose;
 printBreak("Original Root Page - $filenames[0] - End", $verbose, $log);
 
 #{

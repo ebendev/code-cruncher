@@ -1,0 +1,35 @@
+# Open Log
+my $log;
+{
+  $log = new FileHandle "> $logPath";
+  if(!defined($log)) {
+    print "Could not open log file for writing.\nSwitching to verbose mode.\n\n";
+    $verbose = 1;
+    exit 1;
+  }
+}
+
+
+if($rootPath =~ /([^\/]+)(?!\/)/) {
+  $filenames[0] = $1;
+  my $temp = $filenames[0];
+  if($rootPath =~ /(.*)($temp)/) {
+    print "hey$1";
+    $inputAbsPath = $1;
+  }
+  else { print "what?"; }
+}
+
+
+printBreak("CodeCruncher Copyright 2007 Eben Geer", $verbose, $log);
+printBreak("Input Path: $inputAbsPath", $verbose, $log);
+printBreak("Original Root Page - $filenames[0] - Start", $verbose, $log);
+print $log $rootStr . "\n" if defined $log;
+print $rootStr . "\n" if $verbose;
+printBreak("Original Root Page - $filenames[0] - End", $verbose, $log);
+
+#{
+#  my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile] [optional_test_module]\n";
+#  die "Input $errstr" if @ARGV < 1;
+#  die "Output $errstr" if @ARGV < 2;
+#}
