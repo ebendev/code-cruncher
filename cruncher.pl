@@ -112,8 +112,6 @@ my $profilePath;
 
 
 print "\n";
-#print @ARGV;
-#print "\n\n";
 
 foreach my $el (@ARGV) {
   if($el =~ /-ws(?!.)/) { $crunchWS = 1; }
@@ -187,42 +185,6 @@ if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
 
 print "\n";
 
-#my @fileHandles;
-#
-#$fileHandles[0] = new FileHandle "< $rootPath";
-#if(!defined($fileHandles[0])) {
-#  print "Could not open root page: '$rootPath\n\nExiting...\n\n";
-#  exit 1;
-#}
-#
-#
-
-### Load Config #################
-#{
-#  die "Config file not specified.  Correct form is:\n\$ cruncher.pl [config_file] [optional_log_file]\n" if @ARGV < 1;
-#  open CONFIG, "< $ARGV[0]" or die "$ARGV[0] - $!\n";
-#
-#  my $configstring;
-#  while(<CONFIG>) { $configstring .= $_; }
-#
-#  ($inputAbsPath)  = ($configstring =~ m/abs_path = "(.+)";/);
-#  ($outputAbsPath) = ($configstring =~ m/abs_out_path = "(.+)";/);
-#  ($indexRelPath)  = ($configstring =~ m/index = "(.+)";/);
-#  ($testRelPath)  = ($configstring =~ m/test = "(.+)";/);
-#
-#  close CONFIG;
-#}
-
-### Open files: INPUT, LOG ###########
-
-#open INPUT, "< $inputAbsPath$indexRelPath" or die "$inputAbsPath$indexRelPath - $!\n";
-#if($ARGV[1]) {
-#  open LOG, "> $ARGV[1]";
-#  select LOG;
-#}
-
-#use IO::Select;
-#my $s = IO::Select->new();
 
 # Open root
 my $rootStr;
@@ -246,41 +208,11 @@ my $log;
   }
 }
 
-#print "only on STDOUT\n";
-
-#$s->add(\*STDOUT);# if $verbose;
-#$s->add($log);# if defined $log;
-
-#print "on both!\n";
 
 if($rootPath =~ /([^\/]+)(?!\/)/) {
   $filenames[0] = $1;
 }
 
-#sub fhbits {
-#	my(@fhlist) = split(' ',$_[0]);
-#	my($bits);
-#	for (@fhlist) {
-#	    vec($bits,fileno($_),1) = 1;
-#	}
-#	$bits;
-#}
-#$rin = fhbits('STDIN TTY SOCK');
-
-#my $rin;
-#sub fhbits {
-#  my (@fhlist) = @_;
-#  my $bits = '';
-#  for(@fhlist) {
-#    vec($bits, fileno($_), 1) = 1;
-#  }
-#  $bits;
-#}
-#
-#$rin = fhbits('STDOUT', $log);
-#select $rin;
-
-#print $rootStr;
 
 printBreak("CodeCruncher Copyright 2007 Eben Geer", $verbose, $log);
 printBreak("Original Root Page - $filenames[0] - Start", $verbose, $log);
