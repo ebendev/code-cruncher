@@ -2,7 +2,7 @@
 
 ### Pragmas ######################
 use strict;
-#use FileHandle;
+use FileHandle;
 
 
 ### Globals ######################
@@ -66,8 +66,10 @@ use strict;
 my $crunchNames = 1; # default On
 my $crunchWS = 0; # default Off
 my $warningsOn = 1; # default On
+my $verbose = 0; # default off
 
 my $rootPath;
+my $outputPath;
 my @updatePaths;
 my $logPath;
 my $profilePath;
@@ -77,7 +79,9 @@ my $profilePath;
 ## -ws            crunch whitespace
 ## --ws-only      crunch only whitespace
 ## --no-warnings  crunch without asking for user approval
+## -verbose       output log info to screen
 ## -root:path     specify path to index.html or equivalent starting point (only one root may be given)
+## -output:path   specify path to the output root (only one output root may be given)
 ## -update:path   specify path to any unconnected, but dependent modules, like tests, that need to have the updated names
 ## -log:path      specify the path to the log file (default is log.html in current working directory)
 ## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
@@ -85,6 +89,9 @@ my $profilePath;
 ##################################################################################################################################
 
 # Load profile, if present
+#load into @argv
+
+
 
 print "\n";
 #print @ARGV;
@@ -94,9 +101,14 @@ foreach my $el (@ARGV) {
   if($el =~ /-ws(?!.)/) { $crunchWS = 1; }
   elsif($el =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
   elsif($el =~ /--no-warnings/) { $warningsOn = 0; }
+  elsif($el =~ /-verbose/) { $verbose = 1; }
   elsif($el =~ /-root:(.+)/) {
     if(defined($rootPath)) { print "$el ignored. You may only specify one root.\n"; }
     else { $rootPath = $1; }
+  }
+  elsif($el =~ /-output:(.+)/) {
+    if(defined($outputPath)) { print "$el ignored. You may only specify one output root.\n"; }
+    else { $outputPath = $1; }
   }
   elsif($el =~ /-update:(.+)/) { $updatePaths[@updatePaths] = $1; }
   elsif($el =~ /-log:(.+)/) {
@@ -105,22 +117,48 @@ foreach my $el (@ARGV) {
   }
   elsif($el =~ /-profile:(.+)/) {
     if(defined($profilePath)) { print "$el ignored. You may only specify one profile.\n"; }
-    else { $profilePath = $1; }
+    else {
+      print "Profile option not yet supported.\n";
+      #$profilePath = $1;
+    }
   }
   else { print "'$el' ignored. Unrecognized option.\n"; }
 }
 print "\n";
+
+#my $fh;
+#
+#if(defined($profilePath)) {
+#  $fh = new FileHandle("< $profilePath");
+#  if(!defined($fh)) { print "Could not open specified profile: $profilePath. Ignoring...\n"; }
+#  else { print "Opened profile: $profilePath\n"; }
+#}
+#
+#if(defined($fh)) {
+#  print "Additional command line options: \n";
+#
+#  my $profileStr = "";
+#  while(<$fh>) { $profileStr .= $_; }
+#
+#
+#  print $profileStr;
+#  print "\n\n";
+#  undef $fh; # automatically closes the file
+#}
+
 if(!defined($logPath)) { $logPath = "log.html"; }
 
 if(@ARGV < 1 or !defined($rootPath)) {
-  print "\nRoot page not specified.  Correct form is:\n\$ cruncher.pl -root:path/to/index.html/or/equivalent\n";
+  print "\nRoot page not specified.  Correct form must include:\n\$ cruncher.pl -root:path/to/index.html/or/equivalent\n";
   exit 1;
 }
 
 print "crunchNames = $crunchNames\n";
 print "crunchWS = $crunchWS\n";
 print "warningsOn = $warningsOn\n";
+print "verbose = $verbose\n";
 if(defined($rootPath)) { print "rootPath = $rootPath\n"; }
+if(defined($outputPath)) { print "outputPath = $outputPath\n"; }
 if(@updatePaths > 0) {
   print "updatePaths = ";
   print @updatePaths;
@@ -130,6 +168,16 @@ if(defined($logPath)) { print "logPath = $logPath\n"; }
 if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
 
 print "\n";
+
+#my @fileHandles;
+#
+#$fileHandles[0] = new FileHandle "< $rootPath";
+#if(!defined($fileHandles[0])) {
+#  print "Could not open root page: '$rootPath\n\nExiting...\n\n";
+#  exit 1;
+#}
+#
+#
 
 ### Load Config #################
 #{
