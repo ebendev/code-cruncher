@@ -62,6 +62,16 @@ use strict;
 #  }
 #}
 
+# Command line variables
+my $crunchNames = 1; # default On
+my $crunchWS = 0; # default Off
+my $warningsOn = 1; # default On
+
+my $rootPath;
+my @updatePaths;
+my $logPath = "log.html"; # default
+my $profilePath;
+
 ### -> Script Execution Entry Point <- #################################################################################
 ### Process command line options #################################################################################################
 ## -ws            crunch whitespace
@@ -73,9 +83,34 @@ use strict;
 ## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
 ##                  will override those found in the profile
 ##################################################################################################################################
-foreach my $el (@ARGV) {
+die "Root page not specified.  Correct form is:\n\$ cruncher.pl -root:path/to/index.html/or/equivalent\n" if @ARGV < 1;
 
+# Load profile, if present
+
+print @ARGV;
+print "\n";
+
+foreach my $el (@ARGV) {
+  if($el =~ /-ws(?!.)/) { $crunchWS = 1; }
+  elsif($el =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
+  elsif($el =~ /--no-warnings/) { $warningsOn = 0; }
+  elsif($el =~ /-root:(.+)/) { $rootPath = $1; }
+  elsif($el =~ /-update:(.+)/) { $updatePaths[@updatePaths] = $1; }
+  elsif($el =~ /-log:(.+)/) { $logPath = $1; }
+  elsif($el =~ /-profile:(.+)/) { $profilePath = $1; }
+  else { print "Unrecognized option '$el'\n"; }
 }
+
+print "crunchNames = $crunchNames\n";
+print "crunchWS = $crunchWS\n";
+print "warningsOn = $warningsOn\n";
+if(defined($rootPath)) { print "rootPath = $rootPath\n"; }
+if(@updatePaths > 0) {
+  print "updatePaths = ";
+  print @updatePaths;
+}
+if(defined($logPath)) { print "\nlogPath = $logPath"; }
+if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
 
 
 
