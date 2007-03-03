@@ -16,15 +16,33 @@ use FileHandle;
 ##my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
 #my @avoid = qw(); # list of strings not to crunch
 #
-# # Source files
-#my @filenames;
-#my @filestrings;
+ # Source files
+my @filenames;
+my @filestrings;
 #
 # # Test module
 #my $teststring;
 
 
 ### Subroutines ######################
+sub printBreak {
+  my ($str, $console, $logfile) = @_;
+  my $i = 0;
+  if($console) {
+    print "\n===> $str <";
+    print "=" while($i++ < 70 - length $str);
+    print "\n";
+  }
+  $i = 0;
+  if(defined $logfile) {
+    print $logfile "\n===> $str <";
+    print $logfile "=" while($i++ < 70 - length $str);
+    print $logfile "\n";
+  }
+}
+
+
+
 
 ##a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
 ##0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
@@ -203,6 +221,10 @@ print "\n";
 #  select LOG;
 #}
 
+#use IO::Select;
+#my $s = IO::Select->new();
+
+# Open root
 my $rootStr;
 {
   my $fh = new FileHandle "< $rootPath";
@@ -213,7 +235,7 @@ my $rootStr;
   while(<$fh>) { $rootStr .= $_; }
 }
 
-#print $rootStr if $verbose;
+# Open Log
 my $log;
 {
   $log = new FileHandle "> $logPath";
@@ -223,38 +245,48 @@ my $log;
     exit 1;
   }
 }
-sub printBreak {
-  my ($str, $console, $logfile) = @_;
-  my $i = 0;
-  if($console) {
-    print "===> $str <";
-    print "=" while($i++ < 70 - length $str);
-    print "\n";
-  }
-  $i = 0;
-  if(defined $logfile) {
-    print $logfile "===> $str <";
-    print $logfile "=" while($i++ < 70 - length $str);
-    print $logfile "\n";
-  }
+
+#print "only on STDOUT\n";
+
+#$s->add(\*STDOUT);# if $verbose;
+#$s->add($log);# if defined $log;
+
+#print "on both!\n";
+
+if($rootPath =~ /([^\/]+)(?!\/)/) {
+  $filenames[0] = $1;
 }
 
-#my @logs;
+#sub fhbits {
+#	my(@fhlist) = split(' ',$_[0]);
+#	my($bits);
+#	for (@fhlist) {
+#	    vec($bits,fileno($_),1) = 1;
+#	}
+#	$bits;
+#}
+#$rin = fhbits('STDIN TTY SOCK');
 
-#$logs[@logs] = STDOUT if $verbose;
-#$logs[@logs] = fileno STDOUT if $verbose;
-#$logs[@logs] = 1 if $verbose;
-#$logs[@logs] = $log if defined $log;
+#my $rin;
+#sub fhbits {
+#  my (@fhlist) = @_;
+#  my $bits = '';
+#  for(@fhlist) {
+#    vec($bits, fileno($_), 1) = 1;
+#  }
+#  $bits;
+#}
+#
+#$rin = fhbits('STDOUT', $log);
+#select $rin;
+
+#print $rootStr;
 
 printBreak("CodeCruncher Copyright 2007 Eben Geer", $verbose, $log);
-#print $log $rootStr;
-#my $fh;
-#print $fh $rootStr foreach $fh (@logs);
-#print $_ $rootStr for @logs;
-
+printBreak("Original Root Page - $filenames[0] - Start", $verbose, $log);
 print $log $rootStr if defined $log;
 print $rootStr if $verbose;
-
+printBreak("Original Root Page - $filenames[0] - End", $verbose, $log);
 
 #{
 #  my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile] [optional_test_module]\n";
