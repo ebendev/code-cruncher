@@ -194,32 +194,84 @@ print "\n";
 #
 #  close CONFIG;
 #}
-#
-#### Open files: INPUT, LOG ###########
+
+### Open files: INPUT, LOG ###########
+
 #open INPUT, "< $inputAbsPath$indexRelPath" or die "$inputAbsPath$indexRelPath - $!\n";
 #if($ARGV[1]) {
 #  open LOG, "> $ARGV[1]";
 #  select LOG;
 #}
-#
-#
-##{
-##  my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile] [optional_test_module]\n";
-##  die "Input $errstr" if @ARGV < 1;
-##  die "Output $errstr" if @ARGV < 2;
-##}
-#
-##open INPUT, "< $ARGV[0]"
-##     or die "$ARGV[0] - $!\n";
-##open OUTPUT, "> $ARGV[1]"
-##     or die "$ARGV[1] - $!\n";
-##if($ARGV[2]) {
-##  open LOG, "> $ARGV[2]";
-##  select LOG;
-##}
-##if($ARGV[3]) {
+
+my $rootStr;
+{
+  my $fh = new FileHandle "< $rootPath";
+  if(!defined($fh)) {
+    print "Could not open root page: '$rootPath\n\nExiting...\n\n";
+    exit 1;
+  }
+  while(<$fh>) { $rootStr .= $_; }
+}
+
+#print $rootStr if $verbose;
+my $log;
+{
+  $log = new FileHandle "> $logPath";
+  if(!defined($log)) {
+    print "Could not open log file for writing.\nSwitching to verbose mode.\n\n";
+    $verbose = 1;
+    exit 1;
+  }
+}
+sub printBreak {
+  my ($str, $console, $logfile) = @_;
+  my $i = 0;
+  if($console) {
+    print "===> $str <";
+    print "=" while($i++ < 70 - length $str);
+    print "\n";
+  }
+  $i = 0;
+  if(defined $logfile) {
+    print $logfile "===> $str <";
+    print $logfile "=" while($i++ < 70 - length $str);
+    print $logfile "\n";
+  }
+}
+
+#my @logs;
+
+#$logs[@logs] = STDOUT if $verbose;
+#$logs[@logs] = fileno STDOUT if $verbose;
+#$logs[@logs] = 1 if $verbose;
+#$logs[@logs] = $log if defined $log;
+
+printBreak("CodeCruncher Copyright 2007 Eben Geer", $verbose, $log);
+#print $log $rootStr;
+#my $fh;
+#print $fh $rootStr foreach $fh (@logs);
+#print $_ $rootStr for @logs;
+
+print $log $rootStr if defined $log;
+print $rootStr if $verbose;
+
+
+#{
+#  my $errstr = "file not specified.  Correct form is:\n\$ cruncher.pl [input] [output] [optional_logfile] [optional_test_module]\n";
+#  die "Input $errstr" if @ARGV < 1;
+#  die "Output $errstr" if @ARGV < 2;
+#}
+
+#open INPUT, "< $ARGV[0]"
+#     or die "$ARGV[0] - $!\n";
+#open OUTPUT, "> $ARGV[1]"
+#     or die "$ARGV[1] - $!\n";
+#if($ARGV[2]) {
+#  open LOG, "> $ARGV[2]";
+#  select LOG;
+#}
+#if($ARGV[3]) {
 ##  open TESTS, "< $ARGV[3]";
-##}
 #
 ##my @filenames;
 ##my @filestrings;
