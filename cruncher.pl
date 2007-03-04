@@ -224,6 +224,11 @@ if($rootPath =~ /([^\/]+)$/) {
 if(!defined($outputPath)) { $outputPath = $inputPath; }
 
 
+
+print "Please wait while code is crunched.\n\n";
+
+
+
 printBreak("CodeCruncher Copyright 2007 Eben Geer");
 printBreak("Input Path: $inputPath");
 printBreak("Original Root Page - $filenames[0] - Start");
@@ -239,14 +244,17 @@ printBreak("External source files (.js): Identifying...");
 while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
   $filenames[@filenames] = $2;
   printOut("$2 [FROM LINE ->] $1\n");
+  if(!$verbose) { print "."; }
 }
 printBreak("External source files (.js): Identified!");
+
 
 ### Identify CSS source files ###
 printBreak("External source files (.css): Identifying...");
 while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
   $filenames[@filenames] = $2;
   printOut("$2 [FROM LINE ->] $1\n");
+  if(!$verbose) { print "."; }
 }
 printBreak("External source files (.css): Identified!");
 
@@ -255,6 +263,7 @@ for(my $i = 1; $i < @filenames; $i++) {
   my $fh = new FileHandle("< $inputPath$filenames[$i]");
   while(<$fh>) { $filestrings[$i] .= $_; }
   printOut("$filenames[$i]\n");
+  if(!$verbose) { print "."; }
 }
 printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
 
@@ -262,6 +271,7 @@ for(my $i = 1; $i < @filenames; $i++) {
   printBreak("External Source File: $filenames[$i] - Start");
   printOut($filestrings[$i]);
   printBreak("External Source File: $filenames[$i] - End");
+  if(!$verbose) { print "."; }
 }
 
 printBreak("Comments: Extracting...");
@@ -278,8 +288,14 @@ for(my $i = 0; $i < @filestrings; $i++) {
   while($filestrings[$i] =~ s"(^//.*)"") { printOut("$1\n"); }
   while($filestrings[$i] =~ s"(\s//.*)"") { printOut("$1\n"); }
   while($filestrings[$i] =~ s";(//.*)";") { printOut("$1\n"); }
+  
+  if(!$verbose) { print "."; }
 }
 printBreak("Comments: Extracted!");
+
+
+### Crunch Names #########################################################################
+if($crunchNames) {
 
 printBreak("Functions, Variables, and ID's: Identifying...");
 
@@ -294,6 +310,7 @@ sub identifyNames {
         $names[@names] = $2;
         printOut("Identified $type: '$2' [FROM LINE ->] $1\n");
       }
+      if(!$verbose) { print "."; }
     }
   }
 }
@@ -313,6 +330,7 @@ for(my $k = 0; $k < $n; $k++) {
   while(isKeyword($abbr[$k] = alphabase($k + $offset))) {
     $offset++;
   }
+  if(!$verbose) { print "."; }
 }
 
 ### Substitute crunched names ###
@@ -321,13 +339,20 @@ for(my $j = 0; $j < @names; $j++) {
   for(my $i = 0; $i < @filestrings; $i++) {
     while($filestrings[$i] =~ s/(\n?)(.*)(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])(.*)/$1$2$abbr[$j]$4/) {
       printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+      if(!$verbose) { print "."; }
     }
   }
 }
 printBreak("Functions, Variables, and ID's: Renamed!");
 
+}
+### Done crunching names ############################################################################
+
+
 ### ^ Current Progress in Transformation ^ #######################################################################################
 
+### Crunch whitespace ###############################################################################
+if($crunchWS) {
 
 for(my $i = 0; $i < @filenames; $i++) {
   print "\n===> Source File Before Whitespace Removal: $inputPath$filenames[$i] - Start <===\n";
@@ -335,7 +360,6 @@ for(my $i = 0; $i < @filenames; $i++) {
   print "\n===> Source File Before Whitespace Removal: $inputPath$filenames[$i] - End <===\n";
 }
 
-if(0) {
 print "\n===> Whitespace: Extracting... <===========================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
   # = + -
@@ -362,16 +386,22 @@ for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
   print "$filestrings[$i]\n";
 }
-}
 print "\n===> Whitespace: Extracted! <==============================================\n";
-print "\n===> Output files: Writing... <============================================\n";
+
+}
+### Done crunching whitespace #########################################################################
+
+
+### Output files ###
+printBreak("Output files: Writing...");
 for(my $i = 0; $i < @filenames; $i++) {
-  print "$outputPath$filenames[$i]\n";
+  printOut("$outputPath$filenames[$i]\n");
   open EXTERNAL, "> $outputPath$filenames[$i]" or die "$outputPath$filenames[$i] - $!\n";
   print EXTERNAL $filestrings[$i];
   close EXTERNAL;
+  if(!$verbose) { print "."; }
 }
-print "\n===> Output files: Written! <==============================================\n";
+printBreak("Output files: Written!");
 
 #if(defined($ARGV[3])) {
 #if(defined($updatePaths[0])) {
@@ -389,11 +419,6 @@ print "\n===> Output files: Written! <==========================================
 #  print "\n===> Test Module: Updated! <===============================================\n";
 #}
 #
-print "\n===> CodeCruncher Finished! <==============================================\n";
+printBreak("CodeCruncher Finished!");
 
-#close INPUT;
-#close OUTPUT;
-#close LOG;
-
-
-
+if(!$verbose) { print "\n"; }
