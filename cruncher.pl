@@ -358,43 +358,26 @@ for(my $i = 0; $i < @filenames; $i++) {
   printBreak("Source File Before Whitespace Removal: $filenames[$i] - End");
 }
 
-printBreak("Whitespace: Extracting...");
-for(my $i = 0; $i < @filestrings; $i++) {
-  printOut("[$filenames[$i]]\n");
-  # == = + -
-  printOut("[Substituting '=' for ' = ' & '==' for ' == ']\n");
-  while($filestrings[$i] =~ s/(\n?)(.*)(?<!')(\s+(=+)\s+)(?!')(.*)/$1$2$4$5/) {
-    printOut("$2$4$5 [SUBSTITUTED FOR ->] $2$3$5\n");
-    if(!$verbose) { print "."; }
-  }
-  printOut("[Substituting '+' for ' + ']\n");
-  while($filestrings[$i] =~ s/(\n?)(.*)(?<!')(\s+\+\s+)(?!')(.*)/$1$2\+$4/) {
-    printOut("$2+$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-    if(!$verbose) { print "."; }
-  }
-### ^ Current Progress in Transformation ^ #######################################################################################
-
 sub removeWS {
-  my ($item, $filestring, $re) = @_;
-  printOut("[Substituting '$item' for ' $item ']\n");
-  while($filestring =~ s/(\n?)(.*)(?<!')($re)(?!')(.*)/$1$2$item$4/) {
-    printOut("$2$item$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+  # 0 - item, 1 - filestring, 2 - regular expression
+  printOut("[Substituting '$_[0]' for ' $_[0] ']\n");
+  while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
+    printOut("$2$_[0]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
     if(!$verbose) { print "."; }
   }
 }
+printBreak("Whitespace: Extracting...");
+for(my $i = 0; $i < @filestrings; $i++) {
+  printOut("[$filenames[$i]]\n");
+
+  # = + -
+  removeWS('=', $filestrings[$i], '\s+=\s+');
+  removeWS('+', $filestrings[$i], '\s+\+\s+');
   removeWS('-', $filestrings[$i], '\s+-\s+');
 
-#  printOut("[Substituting '-' for ' - ']\n");
-#  while($filestrings[$i] =~ s/(\n?)(.*)(?<!')(\s+-\s+)(?!')(.*)/$1$2-$4/) {
-#    printOut("$2+$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-#    if(!$verbose) { print "."; }
-#  }
-#  $filestrings[$i] =~ s/(?<!')\s*-\s*(?!')/-/g;
+### ^ Current Progress in Transformation ^ #######################################################################################
 
-  
-  $filestrings[$i] =~ s/(?<!')\s*-\s*(?!')/-/g;
-
-  # < > || &&
+  # < > || && ==
   $filestrings[$i] =~ s/\s*<\s*/</g;
   $filestrings[$i] =~ s/\s*>\s*/>/g;
   $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
