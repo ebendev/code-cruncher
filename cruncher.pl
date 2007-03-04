@@ -264,24 +264,25 @@ for(my $i = 1; $i < @filenames; $i++) {
   printBreak("External Source File: $filenames[$i] - End");
 }
 
-### ^ Current Progress in Transformation ^ #######################################################################################
-
-print "\n===> Comments: Extracting... <=============================================\n";
+printBreak("Comments: Extracting...");
 for(my $i = 0; $i < @filestrings; $i++) {
-  print "[$filenames[$i]]\n";
+  printOut("[$filenames[$i]]\n");
 
   # HTML-style comments <!-- -->
-  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { print "$1\n"; }
+  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { printOut("$1\n"); }
 
   # C-style block comments /* */
-  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { print "$1\n"; }
+  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { printOut("$1\n"); }
 
   # C++ style single-line comments // - and then ;//
-  while($filestrings[$i] =~ s"(^//.*)"") { print "$1\n"; }
-  while($filestrings[$i] =~ s"(\s//.*)"") { print "$1\n"; }
-  while($filestrings[$i] =~ s";(//.*)";") { print "$1\n"; }
+  while($filestrings[$i] =~ s"(^//.*)"") { printOut("$1\n"); }
+  while($filestrings[$i] =~ s"(\s//.*)"") { printOut("$1\n"); }
+  while($filestrings[$i] =~ s";(//.*)";") { printOut("$1\n"); }
 }
-print "\n===> Comments: Extracted! <================================================\n";
+printBreak("Comments: Extracted!");
+
+### ^ Current Progress in Transformation ^ #######################################################################################
+
 print "\n===> Functions, Variables, and ID's: Identifying... <======================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
