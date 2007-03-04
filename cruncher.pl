@@ -319,19 +319,22 @@ for(my $i = 0; $i < @filestrings; $i++) {
     }
   }
 }
+### Identify Names - for those who use them ###
+for(my $i = 0; $i < @filestrings; $i++) {
+  printOut("[$filenames[$i]]\n");
+  while($filestrings[$i] =~ m/\n?(.*(?<!meta )name="(\w+)".*)/g) {
+    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+    else {
+      $names[@names] = $2;
+      printOut("Identified Name: '$2' [FROM LINE ->] $1\n");
+    }
+  }
+}
+printBreak("Functions, Variables, and ID's: Identified!");
 
 ### ^ Current Progress in Transformation ^ #######################################################################################
 
-
-
-for(my $i = 0; $i < @filestrings; $i++) {
-  print "[$filenames[$i]]\n";
-  while($filestrings[$i] =~ m/(?<!meta )name="(\w+)"/g) {
-    $names[@names] = $1 unless(isAvoid($1));
-    print "Identified ID: '$names[@names - 1]'\n";
-  }
-}
-print "\n===> Functions, Variables, and ID's: Identified! <=========================\n";
 print "\n===> Functions, Variables, and ID's: Renaming... <=========================\n";
 my @abbr;
 my $n = @names;
