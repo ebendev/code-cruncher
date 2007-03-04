@@ -281,16 +281,24 @@ for(my $i = 0; $i < @filestrings; $i++) {
 }
 printBreak("Comments: Extracted!");
 
-### ^ Current Progress in Transformation ^ #######################################################################################
+printBreak("Functions, Variables, and ID's: Identifying...");
 
-print "\n===> Functions, Variables, and ID's: Identifying... <======================\n";
+### Identify Variables ###
 for(my $i = 0; $i < @filestrings; $i++) {
-  print "[$filenames[$i]]\n";
-  while($filestrings[$i] =~ m/var\s+(\w+)/g) {
-    $names[@names] = $1 unless(isAvoid($1));
-    print "Identified Variable: '$names[@names - 1]'\n";
+  printOut("[$filenames[$i]]\n");
+  while($filestrings[$i] =~ m/\n?(.*var\s+(\w+).*)/g) {
+    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+    else {
+      $names[@names] = $2;
+      printOut("Identified Variable: '$2' [FROM LINE ->] $1\n");
+    }
   }
 }
+
+### ^ Current Progress in Transformation ^ #######################################################################################
+
+
 for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
   while($filestrings[$i] =~ m/function\s+(\w+)\s*\(/g) {
