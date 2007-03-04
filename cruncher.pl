@@ -26,7 +26,7 @@ my $teststring;
 my $crunchNames = 1; # default On
 my $crunchWS = 0; # default Off
 my $warningsOn = 1; # default On
-my $verbose = 1; # default off
+my $verbose = 0; # default off
 
 my $rootPath;
 #my $outputPath;
@@ -287,8 +287,6 @@ print "\n===> Functions, Variables, and ID's: Identifying... <==================
 for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
   while($filestrings[$i] =~ m/var\s+(\w+)/g) {
-    #if($1 ne "rows") { $names[@names] = $1; }
-    #$names[@names] = $1;
     $names[@names] = $1 unless(isAvoid($1));
     print "Identified Variable: '$names[@names - 1]'\n";
   }
