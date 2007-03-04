@@ -295,17 +295,21 @@ for(my $i = 0; $i < @filestrings; $i++) {
     }
   }
 }
+### Identify Functions ###
+for(my $i = 0; $i < @filestrings; $i++) {
+  printOut("[$filenames[$i]]\n");
+  while($filestrings[$i] =~ m/\n?(.*function\s+(\w+)\s*\(.*)/g) {
+    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+    else {
+      $names[@names] = $2;
+      printOut("Identified Function: '$2' [FROM LINE ->] $1\n");
+    }
+  }
+}
 
 ### ^ Current Progress in Transformation ^ #######################################################################################
 
-
-for(my $i = 0; $i < @filestrings; $i++) {
-  print "[$filenames[$i]]\n";
-  while($filestrings[$i] =~ m/function\s+(\w+)\s*\(/g) {
-    $names[@names] = $1 unless(isAvoid($1));
-    print "Identified Function: '$names[@names - 1]'\n";
-  }
-}
 for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
   while($filestrings[$i] =~ m/id="(\w+)"/g) {
