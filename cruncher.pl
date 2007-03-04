@@ -349,21 +349,24 @@ printBreak("Functions, Variables, and ID's: Renamed!");
 ### Done crunching names ############################################################################
 
 
-### ^ Current Progress in Transformation ^ #######################################################################################
-
 ### Crunch whitespace ###############################################################################
 if($crunchWS) {
 
 for(my $i = 0; $i < @filenames; $i++) {
-  print "\n===> Source File Before Whitespace Removal: $inputPath$filenames[$i] - Start <===\n";
-  print $filestrings[$i];
-  print "\n===> Source File Before Whitespace Removal: $inputPath$filenames[$i] - End <===\n";
+  printBreak("Source File Before Whitespace Removal: $filenames[$i] - Start");
+  printOut($filestrings[$i]);
+  printBreak("Source File Before Whitespace Removal: $filenames[$i] - End");
 }
 
-print "\n===> Whitespace: Extracting... <===========================================\n";
+printBreak("Whitespace: Extracting...");
 for(my $i = 0; $i < @filestrings; $i++) {
-  # = + -
-  $filestrings[$i] =~ s/(?<!')\s*=\s*(?!')/=/g;
+  # == = + -
+  while($filestrings[$i] =~ s/(\n?)(.*)(?<!')(\s+(=+)\s+)(?!')(.*)/$1$2$4$5/) {
+    printOut("$2$4$5 [SUBSTITUTED FOR ->] $2$3$5\n");
+    if(!$verbose) { print "."; }
+  }
+### ^ Current Progress in Transformation ^ #######################################################################################
+
   $filestrings[$i] =~ s/(?<!')\s*\+\s*(?!')/\+/g;
   $filestrings[$i] =~ s/(?<!')\s*-\s*(?!')/-/g;
 
@@ -386,7 +389,7 @@ for(my $i = 0; $i < @filestrings; $i++) {
   print "[$filenames[$i]]\n";
   print "$filestrings[$i]\n";
 }
-print "\n===> Whitespace: Extracted! <==============================================\n";
+printBreak("Whitespace: Extracted!");
 
 }
 ### Done crunching whitespace #########################################################################
@@ -420,5 +423,5 @@ printBreak("Output files: Written!");
 #}
 #
 printBreak("CodeCruncher Finished!");
-
+undef $log;
 if(!$verbose) { print "\n\n"; }
