@@ -233,20 +233,25 @@ printBreak("Original Root Page - $filenames[0] - End");
 
 
 # search for external files only goes one level deep
-printBreak("External source files (.js): Identifying...", $verbose, $log);
-while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
-  printOut("$1\n");
-  $filenames[@filenames] = $2;
-  printOut("$filenames[@filenames - 1]\n\n");
-}
-printBreak("External source files (.js): Identified!", $verbose, $log);
 
-print "\n===> External source files (.css): Identifying... <========================\n";
-while($filestrings[0] =~ m/url\((.*\.css)\)/g) {
-  $filenames[@filenames] = $1;
-  print "$inputPath$filenames[@filenames - 1]\n";
+### Identify JavaScript source files ###
+printBreak("External source files (.js): Identifying...");
+while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
+  $filenames[@filenames] = $2;
+  printOut("$2 [FROM LINE ->] $1\n");
 }
-print "\n===> External source files (.css): Identified! <===========================\n";
+printBreak("External source files (.js): Identified!");
+
+### Identify CSS source files ###
+printBreak("External source files (.css): Identifying...");
+while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
+  $filenames[@filenames] = $2;
+  printOut("$2 [FROM LINE ->] $1\n");
+}
+printBreak("External source files (.css): Identified!");
+
+### ^ Current Progress in Transformation ^ #######################################################################################
+
 print "\n===> External source files: Opening... <===================================\n";
 for(my $i = 1; $i < @filenames; $i++) {
   my $fh = new FileHandle("< $inputPath$filenames[$i]");
