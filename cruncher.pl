@@ -353,9 +353,7 @@ identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
 #}
 printBreak("Functions, Variables, and ID's: Identified!");
 
-### ^ Current Progress in Transformation ^ #######################################################################################
-
-print "\n===> Functions, Variables, and ID's: Renaming... <=========================\n";
+printBreak("Functions, Variables, and ID's: Renaming...");
 my @abbr;
 my $n = @names;
 my $offset = 0;
@@ -364,6 +362,10 @@ for(my $k = 0; $k < $n; $k++) {
     $offset++;
   }
 }
+
+### ^ Current Progress in Transformation ^ #######################################################################################
+
+
 for(my $j = 0; $j < @names; $j++) {
   for(my $i = 0; $i < @filestrings; $i++) {
     #$filestrings[$i] =~ s/(?<![^\s\-\+\*\/=])($names[$j])(?![^\s\-\+\*\/=])/$abbr[$j]/g;
