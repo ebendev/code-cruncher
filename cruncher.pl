@@ -105,7 +105,7 @@ sub isAvoid {
 ## --append-log   append to the log file, instead of replacing it
 ## -root:path     specify path to index.html or equivalent starting point (only one root may be given)
 ## -output:path   specify path to the output root (only one output root may be given)
-## -update:path   specify path to any unconnected, but dependent modules, like tests, that need to have the updated names
+## -update:path   specify path (relative to root) to any unconnected, but dependent modules, like tests, that need to have the updated names
 ## -log:path      specify the path to the log file (default is log.html in current working directory)
 ## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
 ##                  will override those found in the profile
@@ -353,7 +353,6 @@ for my $el (@updatePaths) {
   while(<MODULEIN>) { $fstr .= $_; }
   close MODULEIN;
 
-  #printOut($fstr);
   for(my $j = 0; $j < @names; $j++) {
     printOut("[Substituting '$abbr[$j]' for '$names[$j]']\n");
     while($fstr =~ s/(\n?)(.*)(?<![\w<"])(?<!== ')($names[$j])(?! ?[\w])(?![">])(.*)/$1$2$abbr[$j]$4/) {   # only difference is " & "
@@ -434,28 +433,6 @@ for(my $i = 0; $i < @filenames; $i++) {
 }
 printBreak("Output files: Written!");
 
-### ^ Current Progress in Transformation ^ #######################################################################################
-
-if($crunchNames) {
-
-
-}
-#if(defined($ARGV[3])) {
-#if(defined($updatePaths[0])) {
-#  print "\n===> Test Module: Updating... <============================================\n";
-#  open TESTIN, "< $inputPath$updatePaths[0]" or die "$inputPath$updatePaths[0] - $!\n";
-#  while(<TESTIN>) { $teststring .= $_; }
-#  close TESTIN;
-#  for(my $j = 0; $j < @names; $j++) {
-#    $teststring =~ s/(?<![\w"<])($names[$j])(?! ?[\w"])(?![>])/$abbr[$j]/g;
-#    print "'$abbr[$j]' substituted for '$names[$j]'\n";
-#  }
-#  open TESTOUT, "> $outputPath$updatePaths[0]" or die "$outputPath$updatePaths[0] - $!\n";
-#  print TESTOUT $teststring;
-#  close TESTOUT;
-#  print "\n===> Test Module: Updated! <===============================================\n";
-#}
-#
 printBreak("CodeCruncher Finished!");
 undef $log;
 if(!$verbose) { print "\n\n"; }
