@@ -226,16 +226,25 @@ print $filestrings[0] . "\n" if $verbose;
 printBreak("Original Root Page - $filenames[0] - End", $verbose, $log);
 
 
-
+sub printOut {
+  my ($str, $console, $logfile) = @_;
+  if($console) {
+    print $str;
+  }
+  if(defined $logfile) {
+    print $logfile $str;
+  }
+}
 
 # search for external files only goes one level deep
-
-print "\n===> External source files (.js): Identifying... <=========================\n";
-while($filestrings[0] =~ m/src="(.*\.js)"/g) {
-  $filenames[@filenames] = $1;
-  print "$inputPath$filenames[@filenames - 1]\n";
+printBreak("External source files (.js): Identifying...", $verbose, $log);
+while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
+  printOut("$1\n", $verbose, $log);
+  $filenames[@filenames] = $2;
+  printOut("$filenames[@filenames - 1]\n\n", $verbose, $log);
 }
-print "\n===> External source files (.js): Identified! <============================\n";
+printBreak("External source files (.js): Identified!", $verbose, $log);
+
 print "\n===> External source files (.css): Identifying... <========================\n";
 while($filestrings[0] =~ m/url\((.*\.css)\)/g) {
   $filenames[@filenames] = $1;
