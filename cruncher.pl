@@ -345,6 +345,28 @@ for(my $j = 0; $j < @names; $j++) {
 }
 printBreak("Functions, Variables, and ID's: Renamed!");
 
+#if(@updatePaths > 0) {
+for my $el (@updatePaths) {
+  printBreak("Updating dependent module: $el");
+  open MODULEIN, "< $inputPath$el" or die "$inputPath$el  could not be opened for input. - $!\n";
+  my $fstr;
+  while(<MODULEIN>) { $fstr .= $_; }
+  close MODULEIN;
+
+  #printOut($fstr);
+  for(my $j = 0; $j < @names; $j++) {
+    printOut("[Substituting '$abbr[$j]' for '$names[$j]']\n");
+    while($fstr =~ s/(\n?)(.*)(?<![\w<"])(?<!== ')($names[$j])(?! ?[\w])(?![">])(.*)/$1$2$abbr[$j]$4/) {   # only difference is " & "
+      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+      if(!$verbose) { print "."; }
+    }
+  }
+  open MODULEOUT, "> $outputPath$el" or die "$outputPath$el could not be opened for output. - $!\n";
+  print MODULEOUT $fstr;
+  close MODULEOUT;
+  printBreak("Updated dependent module: $el");
+}
+
 }
 ### Done crunching names ############################################################################
 
@@ -388,8 +410,6 @@ for(my $i = 0; $i < @filestrings; $i++) {
   removeWS('{', $filestrings[$i], '\s+\{|\{\s+');
   removeWS('}', $filestrings[$i], '\s+\}|\}\s+');
 
-### ^ Current Progress in Transformation ^ #######################################################################################
-
   # leading and trailing whitespace
   $filestrings[$i] =~ s/;\s+/;/g;
   $filestrings[$i] =~ s/\n\s*//g;
@@ -414,6 +434,12 @@ for(my $i = 0; $i < @filenames; $i++) {
 }
 printBreak("Output files: Written!");
 
+### ^ Current Progress in Transformation ^ #######################################################################################
+
+if($crunchNames) {
+
+
+}
 #if(defined($ARGV[3])) {
 #if(defined($updatePaths[0])) {
 #  print "\n===> Test Module: Updating... <============================================\n";
