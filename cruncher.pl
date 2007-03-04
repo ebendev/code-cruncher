@@ -283,54 +283,74 @@ printBreak("Comments: Extracted!");
 
 printBreak("Functions, Variables, and ID's: Identifying...");
 
-### Identify Variables ###
-for(my $i = 0; $i < @filestrings; $i++) {
-  printOut("[$filenames[$i]]\n");
-  while($filestrings[$i] =~ m/\n?(.*var\s+(\w+).*)/g) {
-    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
-    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
-    else {
-      $names[@names] = $2;
-      printOut("Identified Variable: '$2' [FROM LINE ->] $1\n");
+sub identifyNames {
+  my ($type, $re) = @_;
+  for(my $i = 0; $i < @filestrings; $i++) {
+    printOut("[$filenames[$i]]\n");
+    while($filestrings[$i] =~ m/$re/g) {
+      if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+      elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+      else {
+        $names[@names] = $2;
+        printOut("Identified $type: '$2' [FROM LINE ->] $1\n");
+      }
     }
   }
 }
-### Identify Functions ###
-for(my $i = 0; $i < @filestrings; $i++) {
-  printOut("[$filenames[$i]]\n");
-  while($filestrings[$i] =~ m/\n?(.*function\s+(\w+)\s*\(.*)/g) {
-    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
-    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
-    else {
-      $names[@names] = $2;
-      printOut("Identified Function: '$2' [FROM LINE ->] $1\n");
-    }
-  }
-}
-### Identify IDs ###
-for(my $i = 0; $i < @filestrings; $i++) {
-  printOut("[$filenames[$i]]\n");
-  while($filestrings[$i] =~ m/\n?(.*id="(\w+)".*)/g) {
-    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
-    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
-    else {
-      $names[@names] = $2;
-      printOut("Identified ID: '$2' [FROM LINE ->] $1\n");
-    }
-  }
-}
-### Identify Names - for those who use them ###
-for(my $i = 0; $i < @filestrings; $i++) {
-  printOut("[$filenames[$i]]\n");
-  while($filestrings[$i] =~ m/\n?(.*(?<!meta )name="(\w+)".*)/g) {
-    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
-    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
-    else {
-      $names[@names] = $2;
-      printOut("Identified Name: '$2' [FROM LINE ->] $1\n");
-    }
-  }
-}
+
+identifyNames("Variable", '\n?(.*var\s+(\w+).*)');
+identifyNames("Function", '\n?(.*function\s+(\w+)\s*\(.*)');
+identifyNames("ID", '\n?(.*id="(\w+)".*)');
+identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
+
+#### Identify Variables ###
+#for(my $i = 0; $i < @filestrings; $i++) {
+#  printOut("[$filenames[$i]]\n");
+#  while($filestrings[$i] =~ m/\n?(.*var\s+(\w+).*)/g) {
+#    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+#    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+#    else {
+#      $names[@names] = $2;
+#      printOut("Identified Variable: '$2' [FROM LINE ->] $1\n");
+#    }
+#  }
+#}
+#### Identify Functions ###
+#for(my $i = 0; $i < @filestrings; $i++) {
+#  printOut("[$filenames[$i]]\n");
+#  while($filestrings[$i] =~ m/\n?(.*function\s+(\w+)\s*\(.*)/g) {
+#    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+#    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+#    else {
+#      $names[@names] = $2;
+#      printOut("Identified Function: '$2' [FROM LINE ->] $1\n");
+#    }
+#  }
+#}
+#### Identify IDs ###
+#for(my $i = 0; $i < @filestrings; $i++) {
+#  printOut("[$filenames[$i]]\n");
+#  while($filestrings[$i] =~ m/\n?(.*id="(\w+)".*)/g) {
+#    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+#    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+#    else {
+#      $names[@names] = $2;
+#      printOut("Identified ID: '$2' [FROM LINE ->] $1\n");
+#    }
+#  }
+#}
+#### Identify Names - for those who use them ###
+#for(my $i = 0; $i < @filestrings; $i++) {
+#  printOut("[$filenames[$i]]\n");
+#  while($filestrings[$i] =~ m/\n?(.*(?<!meta )name="(\w+)".*)/g) {
+#    if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+#    elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+#    else {
+#      $names[@names] = $2;
+#      printOut("Identified Name: '$2' [FROM LINE ->] $1\n");
+#    }
+#  }
+#}
 printBreak("Functions, Variables, and ID's: Identified!");
 
 ### ^ Current Progress in Transformation ^ #######################################################################################
