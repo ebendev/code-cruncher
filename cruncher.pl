@@ -382,13 +382,13 @@ for(my $i = 0; $i < @filestrings; $i++) {
   removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
   removeWS('==', $filestrings[$i], '\s+==\s+');
   
-### ^ Current Progress in Transformation ^ #######################################################################################
-
   # ( ) { }
-  $filestrings[$i] =~ s/\s*\(\s*/\(/g;
-  $filestrings[$i] =~ s/\s*\)\s*/\)/g;
-  $filestrings[$i] =~ s/\s*\{\s*/\{/g;
-  $filestrings[$i] =~ s/\s*\}\s*/\}/g;
+  removeWS('(', $filestrings[$i], '\s+\(|\(\s+');
+  removeWS(')', $filestrings[$i], '\s+\)|\)\s+');
+  removeWS('{', $filestrings[$i], '\s+\{|\{\s+');
+  removeWS('}', $filestrings[$i], '\s+\}|\}\s+');
+
+### ^ Current Progress in Transformation ^ #######################################################################################
 
   # leading and trailing whitespace
   $filestrings[$i] =~ s/;\s+/;/g;
