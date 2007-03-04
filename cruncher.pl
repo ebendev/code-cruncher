@@ -22,22 +22,40 @@ my @filestrings;
  # Test module
 my $teststring;
 
+# Command line variables
+my $crunchNames = 1; # default On
+my $crunchWS = 0; # default Off
+my $warningsOn = 1; # default On
+my $verbose = 1; # default off
+
+my $rootPath;
+#my $outputPath;
+my @updatePaths;
+my $logPath;
+my $profilePath;
+my $log;
+
 
 ### Subroutines ######################
 sub printBreak {
-  my ($str, $console, $logfile) = @_;
+  my ($str) = @_;
   my $i = 0;
-  if($console) {
-    print "===> $str <";
-    print "=" while($i++ < 70 - length $str);
+  if($verbose) {
+    print "===> $str <===";
+    print "=" while($i++ < 69 - length $str);
     print "\n";
   }
   $i = 0;
-  if(defined $logfile) {
-    print $logfile "===> $str <";
-    print $logfile "=" while($i++ < 70 - length $str);
-    print $logfile "\n";
+  if(defined $log) {
+    print $log "===> $str <===";
+    print $log "=" while($i++ < 69 - length $str);
+    print $log "\n";
   }
+}
+sub printOut {
+  my ($str) = @_;
+  if($verbose) { print $str; }
+  if(defined $log) { print $log $str; }
 }
 
 #a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
@@ -76,17 +94,6 @@ sub isAvoid {
   }
 }
 
-# Command line variables
-my $crunchNames = 1; # default On
-my $crunchWS = 0; # default Off
-my $warningsOn = 1; # default On
-my $verbose = 0; # default off
-
-my $rootPath;
-#my $outputPath;
-my @updatePaths;
-my $logPath;
-my $profilePath;
 
 ### -> Script Execution Entry Point <- #################################################################################
 ### Process command line options #################################################################################################
@@ -198,7 +205,6 @@ print "\n";
 }
 
 # Open Log
-my $log;
 {
   $log = new FileHandle "> $logPath";
   if(!defined($log)) {
@@ -218,19 +224,13 @@ if($rootPath =~ /([^\/]+)$/) {
 if(!defined($outputPath)) { $outputPath = $inputPath; }
 
 
-printBreak("CodeCruncher Copyright 2007 Eben Geer", $verbose, $log);
-printBreak("Input Path: $inputPath", $verbose, $log);
-printBreak("Original Root Page - $filenames[0] - Start", $verbose, $log);
-print $log $filestrings[0] . "\n" if defined $log;
-print $filestrings[0] . "\n" if $verbose;
-printBreak("Original Root Page - $filenames[0] - End", $verbose, $log);
+printBreak("CodeCruncher Copyright 2007 Eben Geer");
+printBreak("Input Path: $inputPath");
+printBreak("Original Root Page - $filenames[0] - Start");
+printOut("$filestrings[0]\n");
+printBreak("Original Root Page - $filenames[0] - End");
 
 
-sub printOut {
-  my ($str) = @_;
-  if($verbose) { print $str; }
-  if(defined $log) { print $log $str; }
-}
 
 # search for external files only goes one level deep
 printBreak("External source files (.js): Identifying...", $verbose, $log);
