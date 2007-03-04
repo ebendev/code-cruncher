@@ -114,7 +114,7 @@ sub isAvoid {
 
 
 my $dir = getcwd;
-print $dir;
+#print $dir;
 print "\n";
 
 foreach my $el (@ARGV) {
@@ -174,19 +174,19 @@ if(@ARGV < 1 or !defined($rootPath)) {
   exit 1;
 }
 
-print "crunchNames = $crunchNames\n";
-print "crunchWS = $crunchWS\n";
-print "warningsOn = $warningsOn\n";
-print "verbose = $verbose\n";
-if(defined($rootPath)) { print "rootPath = $rootPath\n"; }
-if(defined($outputPath)) { print "outputPath = $outputPath\n"; }
-if(@updatePaths > 0) {
-  print "updatePaths = ";
-  print @updatePaths;
-  print "\n";
-}
-if(defined($logPath)) { print "logPath = $logPath\n"; }
-if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
+#print "crunchNames = $crunchNames\n";
+#print "crunchWS = $crunchWS\n";
+#print "warningsOn = $warningsOn\n";
+#print "verbose = $verbose\n";
+#if(defined($rootPath)) { print "rootPath = $rootPath\n"; }
+#if(defined($outputPath)) { print "outputPath = $outputPath\n"; }
+#if(@updatePaths > 0) {
+#  print "updatePaths = ";
+#  print @updatePaths;
+#  print "\n";
+#}
+#if(defined($logPath)) { print "logPath = $logPath\n"; }
+#if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
 
 print "\n";
 
@@ -225,7 +225,7 @@ if(!defined($outputPath)) { $outputPath = $inputPath; }
 
 
 
-print "Please wait while code is crunched.\n\n";
+if(!$verbose) { print "Please wait while code is crunched.\n\n"; }
 
 
 
@@ -421,4 +421,4 @@ printBreak("Output files: Written!");
 #
 printBreak("CodeCruncher Finished!");
 
-if(!$verbose) { print "\n"; }
+if(!$verbose) { print "\n\n"; }
