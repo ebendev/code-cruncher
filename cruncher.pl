@@ -8,9 +8,8 @@ use Cwd;
 
 ### Globals ######################
  # Path strings
-my $inputRelPath;
-my $outputRelPath;
-my $testRelPath;
+my $inputPath;
+my $outputPath;
 
 my @names; # all identifiers in the general namespace: functions, variables, ids
 #my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
@@ -84,7 +83,7 @@ my $warningsOn = 1; # default On
 my $verbose = 0; # default off
 
 my $rootPath;
-my $outputPath;
+#my $outputPath;
 my @updatePaths;
 my $logPath;
 my $profilePath;
@@ -122,7 +121,7 @@ foreach my $el (@ARGV) {
   }
   elsif($el =~ /-output:(.+)/) {
     if(defined($outputPath)) { print "$el ignored. You may only specify one output root.\n"; }
-    else { $outputRelPath = $1; }
+    else { $outputPath = $1; }
   }
   elsif($el =~ /-update:(.+)/) { $updatePaths[@updatePaths] = $1; }
   elsif($el =~ /-log:(.+)/) {
@@ -173,7 +172,7 @@ print "crunchWS = $crunchWS\n";
 print "warningsOn = $warningsOn\n";
 print "verbose = $verbose\n";
 if(defined($rootPath)) { print "rootPath = $rootPath\n"; }
-if(defined($outputRelPath)) { print "outputRelPath = $outputRelPath\n"; }
+if(defined($outputPath)) { print "outputPath = $outputPath\n"; }
 if(@updatePaths > 0) {
   print "updatePaths = ";
   print @updatePaths;
@@ -212,21 +211,21 @@ my $log;
 # Isolate relative input path, filename
 if($rootPath =~ /([^\/]+)$/) {
   $filenames[0] = $1;
-  if($rootPath =~ /(.*)\/$filenames[0]/) {
-    $inputRelPath = $1;
+  if($rootPath =~ /(.*\/?)$filenames[0]/) {
+    $inputPath = $1;
   }
 }
+if(!defined($outputPath)) { $outputPath = $inputPath; }
 
 
 printBreak("CodeCruncher Copyright 2007 Eben Geer", $verbose, $log);
-printBreak("Input Path: $inputRelPath", $verbose, $log);
+printBreak("Input Path: $inputPath", $verbose, $log);
 printBreak("Original Root Page - $filenames[0] - Start", $verbose, $log);
 print $log $filestrings[0] . "\n" if defined $log;
 print $filestrings[0] . "\n" if $verbose;
 printBreak("Original Root Page - $filenames[0] - End", $verbose, $log);
 
 
-$inputRelPath = $inputRelPath;
 
 
 # search for external files only goes one level deep
@@ -234,28 +233,28 @@ $inputRelPath = $inputRelPath;
 print "\n===> External source files (.js): Identifying... <=========================\n";
 while($filestrings[0] =~ m/src="(.*\.js)"/g) {
   $filenames[@filenames] = $1;
-  print "$inputRelPath$filenames[@filenames - 1]\n";
+  print "$inputPath$filenames[@filenames - 1]\n";
 }
 print "\n===> External source files (.js): Identified! <============================\n";
 print "\n===> External source files (.css): Identifying... <========================\n";
 while($filestrings[0] =~ m/url\((.*\.css)\)/g) {
   $filenames[@filenames] = $1;
-  print "$inputRelPath$filenames[@filenames - 1]\n";
+  print "$inputPath$filenames[@filenames - 1]\n";
 }
 print "\n===> External source files (.css): Identified! <===========================\n";
 print "\n===> External source files: Opening... <===================================\n";
 for(my $i = 1; $i < @filenames; $i++) {
-  my $fh = new FileHandle("< $inputRelPath$filenames[$i]");
+  my $fh = new FileHandle("< $inputPath$filenames[$i]");
   $filestrings[$i] = "";
   while(<$fh>) { $filestrings[$i] .= $_; }
-  print "$inputRelPath$filenames[$i]\n";
+  print "$inputPath$filenames[$i]\n";
 }
 print "\n===> (" . scalar @filestrings - 1 . ") External source files: Opened! <==================================\n";
 
 for(my $i = 1; $i < @filenames; $i++) {
-  print "\n===> External Source File: $inputRelPath$filenames[$i] - Start <===\n";
+  print "\n===> External Source File: $inputPath$filenames[$i] - Start <===\n";
   print $filestrings[$i];
-  print "\n===> External Source File: $inputRelPath$filenames[$i] - End <===\n";
+  print "\n===> External Source File: $inputPath$filenames[$i] - End <===\n";
 }
 
 print "\n===> Comments: Extracting... <=============================================\n";
@@ -330,9 +329,9 @@ for(my $j = 0; $j < @names; $j++) {
 print "\n===> Functions, Variables, and ID's: Renamed! <============================\n";
 
 for(my $i = 0; $i < @filenames; $i++) {
-  print "\n===> Source File Before Whitespace Removal: $inputRelPath$filenames[$i] - Start <===\n";
+  print "\n===> Source File Before Whitespace Removal: $inputPath$filenames[$i] - Start <===\n";
   print $filestrings[$i];
-  print "\n===> Source File Before Whitespace Removal: $inputRelPath$filenames[$i] - End <===\n";
+  print "\n===> Source File Before Whitespace Removal: $inputPath$filenames[$i] - End <===\n";
 }
 
 if(0) {
@@ -366,29 +365,29 @@ for(my $i = 0; $i < @filestrings; $i++) {
 print "\n===> Whitespace: Extracted! <==============================================\n";
 print "\n===> Output files: Writing... <============================================\n";
 for(my $i = 0; $i < @filenames; $i++) {
-  print "$outputRelPath$filenames[$i]\n";
-  open EXTERNAL, "> $outputRelPath$filenames[$i]" or die "$outputRelPath$filenames[$i] - $!\n";
+  print "$outputPath$filenames[$i]\n";
+  open EXTERNAL, "> $outputPath$filenames[$i]" or die "$outputPath$filenames[$i] - $!\n";
   print EXTERNAL $filestrings[$i];
   close EXTERNAL;
 }
 print "\n===> Output files: Written! <==============================================\n";
 
 #if(defined($ARGV[3])) {
-if(defined($updatePaths[0])) {
-  print "\n===> Test Module: Updating... <============================================\n";
-  open TESTIN, "< $inputRelPath$updatePaths[0]" or die "$inputRelPath$updatePaths[0] - $!\n";
-  while(<TESTIN>) { $teststring .= $_; }
-  close TESTIN;
-  for(my $j = 0; $j < @names; $j++) {
-    $teststring =~ s/(?<![\w"<])($names[$j])(?! ?[\w"])(?![>])/$abbr[$j]/g;
-    print "'$abbr[$j]' substituted for '$names[$j]'\n";
-  }
-  open TESTOUT, "> $outputRelPath$updatePaths[0]" or die "$outputRelPath$updatePaths[0] - $!\n";
-  print TESTOUT $teststring;
-  close TESTOUT;
-  print "\n===> Test Module: Updated! <===============================================\n";
-}
-
+#if(defined($updatePaths[0])) {
+#  print "\n===> Test Module: Updating... <============================================\n";
+#  open TESTIN, "< $inputPath$updatePaths[0]" or die "$inputPath$updatePaths[0] - $!\n";
+#  while(<TESTIN>) { $teststring .= $_; }
+#  close TESTIN;
+#  for(my $j = 0; $j < @names; $j++) {
+#    $teststring =~ s/(?<![\w"<])($names[$j])(?! ?[\w"])(?![>])/$abbr[$j]/g;
+#    print "'$abbr[$j]' substituted for '$names[$j]'\n";
+#  }
+#  open TESTOUT, "> $outputPath$updatePaths[0]" or die "$outputPath$updatePaths[0] - $!\n";
+#  print TESTOUT $teststring;
+#  close TESTOUT;
+#  print "\n===> Test Module: Updated! <===============================================\n";
+#}
+#
 print "\n===> CodeCruncher Finished! <==============================================\n";
 
 #close INPUT;
