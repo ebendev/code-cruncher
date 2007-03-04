@@ -360,14 +360,19 @@ for(my $i = 0; $i < @filenames; $i++) {
 
 printBreak("Whitespace: Extracting...");
 for(my $i = 0; $i < @filestrings; $i++) {
+  printOut("[$filenames[$i]]\n");
   # == = + -
+  printOut("[Substituting '=' for ' = ' & '==' for ' == ']\n");
   while($filestrings[$i] =~ s/(\n?)(.*)(?<!')(\s+(=+)\s+)(?!')(.*)/$1$2$4$5/) {
     printOut("$2$4$5 [SUBSTITUTED FOR ->] $2$3$5\n");
     if(!$verbose) { print "."; }
   }
+  printOut("[Substituting '+' for ' + ']\n");
+  while($filestrings[$i] =~ s/(\n?)(.*)(?<!')(\s+\+\s+)(?!')(.*)/$1$2\+$4/) {
+    printOut("$2+$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+    if(!$verbose) { print "."; }
+  }
 ### ^ Current Progress in Transformation ^ #######################################################################################
-
-  $filestrings[$i] =~ s/(?<!')\s*\+\s*(?!')/\+/g;
   $filestrings[$i] =~ s/(?<!')\s*-\s*(?!')/-/g;
 
   # < > || &&
