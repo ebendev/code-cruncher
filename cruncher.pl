@@ -378,10 +378,20 @@ for(my $i = 0; $i < @filestrings; $i++) {
 ### ^ Current Progress in Transformation ^ #######################################################################################
 
   # < > || && ==
-  $filestrings[$i] =~ s/\s*<\s*/</g;
-  $filestrings[$i] =~ s/\s*>\s*/>/g;
-  $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
-  $filestrings[$i] =~ s/\s*\&\&\s*/\&\&/g;
+
+  removeWS('<', $filestrings[$i], '\s+<\s+');
+  #$filestrings[$i] =~ s/\s*<\s*/</g;
+
+  removeWS('>', $filestrings[$i], '\s+>\s+');
+#  $filestrings[$i] =~ s/\s*>\s*/>/g;
+
+  removeWS('||', $filestrings[$i], '\s+\|\|\s+');
+#  $filestrings[$i] =~ s/\s*\|\|\s*/\|\|/g;
+
+  removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
+#  $filestrings[$i] =~ s/\s*\&\&\s*/\&\&/g;
+
+  removeWS('==', $filestrings[$i], '\s+==\s+');
 
   # ( ) { }
   $filestrings[$i] =~ s/\s*\(\s*/\(/g;
