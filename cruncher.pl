@@ -363,22 +363,19 @@ for(my $k = 0; $k < $n; $k++) {
   }
 }
 
+### Substitute crunched names ###
+for(my $j = 0; $j < @names; $j++) {
+  printOut("['$abbr[$j]' substituted for '$names[$j]' in the following lines:]\n");
+  for(my $i = 0; $i < @filestrings; $i++) {
+    while($filestrings[$i] =~ s/(\n?)(.*)(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])(.*)/$1$2$abbr[$j]$4/) {
+      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+    }
+  }
+}
+printBreak("Functions, Variables, and ID's: Renamed!");
+
 ### ^ Current Progress in Transformation ^ #######################################################################################
 
-
-for(my $j = 0; $j < @names; $j++) {
-  for(my $i = 0; $i < @filestrings; $i++) {
-    #$filestrings[$i] =~ s/(?<![^\s\-\+\*\/=])($names[$j])(?![^\s\-\+\*\/=])/$abbr[$j]/g;
-    #$filestrings[$i] =~ s/(?<=[\s\-\+\*\/\=\;\(\[\.\,])($names[$j])(?=[\s\-\+\*\/\=\;\(\)\]\.\,])/$abbr[$j]/g;
-    #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?![\w>])/$abbr[$j]/g;
-    #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])/$abbr[$j]/g;
-    #$filestrings[$i] =~ s/(?<![\w<\.])($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
-    #$filestrings[$i] =~ s/(?<![\w'<])($names[$j])(?! ?[\w'])(?![>])/$abbr[$j]/g;
-    $filestrings[$i] =~ s/(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])/$abbr[$j]/g;
-  }
-  print "'$abbr[$j]' substituted for '$names[$j]'\n";
-}
-print "\n===> Functions, Variables, and ID's: Renamed! <============================\n";
 
 for(my $i = 0; $i < @filenames; $i++) {
   print "\n===> Source File Before Whitespace Removal: $inputPath$filenames[$i] - Start <===\n";
