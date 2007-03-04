@@ -235,9 +235,6 @@ if(!$verbose) { print "Please wait while code is crunched.\n\n"; }
 
 printBreak("CodeCruncher Copyright 2007 Eben Geer");
 printBreak("Input Path: $inputPath");
-printBreak("Original Root Page - $filenames[0] - Start");
-printOut("$filestrings[0]\n");
-printBreak("Original Root Page - $filenames[0] - End");
 
 
 
@@ -274,7 +271,7 @@ printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
 ### Crunch Names #########################################################################
 if($crunchNames) {
 
-for(my $i = 1; $i < @filenames; $i++) {
+for(my $i = 0; $i < @filenames; $i++) {
   printBreak("External Source File: $filenames[$i] - Start");
   printOut($filestrings[$i]);
   printBreak("External Source File: $filenames[$i] - End");
@@ -376,6 +373,25 @@ for(my $i = 0; $i < @filestrings; $i++) {
     if(!$verbose) { print "."; }
   }
 ### ^ Current Progress in Transformation ^ #######################################################################################
+
+sub removeWS {
+  my ($item, $filestring, $re) = @_;
+  printOut("[Substituting '$item' for ' $item ']\n");
+  while($filestring =~ s/(\n?)(.*)(?<!')($re)(?!')(.*)/$1$2$item$4/) {
+    printOut("$2$item$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+    if(!$verbose) { print "."; }
+  }
+}
+  removeWS('-', $filestrings[$i], '\s+-\s+');
+
+#  printOut("[Substituting '-' for ' - ']\n");
+#  while($filestrings[$i] =~ s/(\n?)(.*)(?<!')(\s+-\s+)(?!')(.*)/$1$2-$4/) {
+#    printOut("$2+$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+#    if(!$verbose) { print "."; }
+#  }
+#  $filestrings[$i] =~ s/(?<!')\s*-\s*(?!')/-/g;
+
+  
   $filestrings[$i] =~ s/(?<!')\s*-\s*(?!')/-/g;
 
   # < > || &&
