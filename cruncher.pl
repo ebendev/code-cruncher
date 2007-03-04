@@ -250,16 +250,15 @@ while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
 }
 printBreak("External source files (.css): Identified!");
 
-### ^ Current Progress in Transformation ^ #######################################################################################
-
-print "\n===> External source files: Opening... <===================================\n";
+printBreak("External source files: Opening...");
 for(my $i = 1; $i < @filenames; $i++) {
   my $fh = new FileHandle("< $inputPath$filenames[$i]");
-  $filestrings[$i] = "";
   while(<$fh>) { $filestrings[$i] .= $_; }
-  print "$inputPath$filenames[$i]\n";
+  printOut("$filenames[$i]\n");
 }
-print "\n===> (" . scalar @filestrings - 1 . ") External source files: Opened! <==================================\n";
+printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
+
+### ^ Current Progress in Transformation ^ #######################################################################################
 
 for(my $i = 1; $i < @filenames; $i++) {
   print "\n===> External Source File: $inputPath$filenames[$i] - Start <===\n";
