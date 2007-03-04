@@ -258,13 +258,13 @@ for(my $i = 1; $i < @filenames; $i++) {
 }
 printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
 
-### ^ Current Progress in Transformation ^ #######################################################################################
-
 for(my $i = 1; $i < @filenames; $i++) {
-  print "\n===> External Source File: $inputPath$filenames[$i] - Start <===\n";
-  print $filestrings[$i];
-  print "\n===> External Source File: $inputPath$filenames[$i] - End <===\n";
+  printBreak("External Source File: $filenames[$i] - Start");
+  printOut($filestrings[$i]);
+  printBreak("External Source File: $filenames[$i] - End");
 }
+
+### ^ Current Progress in Transformation ^ #######################################################################################
 
 print "\n===> Comments: Extracting... <=============================================\n";
 for(my $i = 0; $i < @filestrings; $i++) {
