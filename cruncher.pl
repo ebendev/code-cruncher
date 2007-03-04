@@ -23,10 +23,11 @@ my @filestrings;
 my $teststring;
 
 # Command line variables
-my $crunchNames = 1; # default On
-my $crunchWS = 0; # default Off
-my $warningsOn = 1; # default On
+my $crunchNames = 1; # default ON
+my $crunchWS = 0; # default off
+my $warningsOn = 1; # default ON
 my $verbose = 0; # default off
+my $append = 0; # default off
 
 my $rootPath;
 #my $outputPath;
@@ -101,6 +102,7 @@ sub isAvoid {
 ## --ws-only      crunch only whitespace
 ## --no-warnings  crunch without asking for user approval
 ## -verbose       output log info to screen
+## --append-log   append to the log file, instead of replacing it
 ## -root:path     specify path to index.html or equivalent starting point (only one root may be given)
 ## -output:path   specify path to the output root (only one output root may be given)
 ## -update:path   specify path to any unconnected, but dependent modules, like tests, that need to have the updated names
@@ -122,6 +124,7 @@ foreach my $el (@ARGV) {
   elsif($el =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
   elsif($el =~ /--no-warnings/) { $warningsOn = 0; }
   elsif($el =~ /-verbose/) { $verbose = 1; }
+  elsif($el =~ /--append-log/) { $append = 1; }
   elsif($el =~ /-root:(.+)/) {
     if(defined($rootPath)) { print "$el ignored. You may only specify one root.\n"; }
     else { $rootPath = $1; }
@@ -206,7 +209,8 @@ print "\n";
 
 # Open Log
 {
-  $log = new FileHandle "> $logPath";
+  if($append) { $log = new FileHandle ">>$logPath"; }
+  else { $log = new FileHandle "> $logPath"; }
   if(!defined($log)) {
     print "Could not open log file for writing.\nSwitching to verbose mode.\n\n";
     $verbose = 1;
@@ -267,6 +271,9 @@ for(my $i = 1; $i < @filenames; $i++) {
 }
 printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
 
+### Crunch Names #########################################################################
+if($crunchNames) {
+
 for(my $i = 1; $i < @filenames; $i++) {
   printBreak("External Source File: $filenames[$i] - Start");
   printOut($filestrings[$i]);
@@ -292,10 +299,6 @@ for(my $i = 0; $i < @filestrings; $i++) {
   if(!$verbose) { print "."; }
 }
 printBreak("Comments: Extracted!");
-
-
-### Crunch Names #########################################################################
-if($crunchNames) {
 
 printBreak("Functions, Variables, and ID's: Identifying...");
 
