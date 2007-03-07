@@ -234,6 +234,24 @@ if(!$verbose) {
   print "Please wait while whitespace is crunched.\n\n" if($crunchWS && !$crunchNames);
 }
 
+#####################################
+## Start Meaningful HTML Logging
+#####################################
+if(defined($log)) {
+  print $log '<?xml version="1.0" encoding="UTF-8"?>';
+  print $log '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+  print $log '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">';
+  print $log '<head><title>Cruncher Log</title>';
+
+  print $log '<style>';
+  print $log '';
+
+  print $log '</style><script>';
+  print $log '';
+
+  print $log '</script></head><body>';
+}
+
 
 
 printBreak("CodeCruncher Copyright 2007 Eben Geer");
@@ -437,5 +455,10 @@ for(my $i = 0; $i < @filenames; $i++) {
 printBreak("Output files: Written!");
 
 printBreak("CodeCruncher Finished!");
+
+if(defined $log) {
+  print $log '</body></html>';
+}
+
 undef $log;
 if(!$verbose) { print "\n\n"; }
