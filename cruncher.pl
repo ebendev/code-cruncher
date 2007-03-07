@@ -198,7 +198,7 @@ print "\n";
 #my $rootStr;
 {
   $rootPath =~ s/\\/\//g;
-  my $fh = new FileHandle "<$rootPath";
+  my $fh = new FileHandle "< $rootPath";
   if(!defined($fh)) {
     print "Could not open root page: '$rootPath'\n\nExiting...\n\n";
     exit 1;
