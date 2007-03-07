@@ -254,8 +254,51 @@ if(defined($log)) {
   print $log '<head><title>Cruncher Log</title>', "\n";
 
   print $log "<style>\n";
-  print $log '';
-
+  print $log 'body { font: 75%/1.6 "Myriad Pro", Frutiger, "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", Verdana, sans-serif; }';
+  print $log 'table { border-collapse: collapse; width: 85em; border: 1px solid #666; }';
+  print $log 'caption { font-size: 1.2em; font-weight: bold; margin: 1em 0; }';
+  print $log 'col { border-right: 1px solid #ccc; }';
+  print $log 'thead { background: #ccc url(images/bar.gif) repeat-x left center; border-top: 1px solid #a5a5a5; border-bottom: 1px solid #a5a5a5; }';
+  print $log 'th { font-weight: normal; text-align: left; }';
+  print $log 'th, td { padding: 0.1em 1em; }';
+  print $log 'tr:hover { background-color: #3d80df; color: #fff; }';
+  print $log 'thead tr:hover { background-color: transparent; color: inherit; }';
+#  print $log '.even {
+#  background-color: #edf5ff;
+#}
+#
+#.odd {
+#  background-color: inherit;
+#}
+#
+#.pass {
+#  border: none;
+#  font-weight: bold;
+#  color: green;
+#}
+#
+#.pass:hover {
+#  color: white;
+#}
+#
+#.fail {
+#  border: none;
+#  font-weight: bold;
+#  color: red;
+#}
+#
+#.fail:hover {
+#  color: white;
+#}
+#
+#.inputcell {
+#  font-weight: bold;
+#  border-bottom: solid black 1px;
+#  border-top: solid black 1px;
+#  border-right: solid black 1px;
+#  border-left: solid black 1px;
+#}';
+#
   print $log "</style>\n<script>\n";
   print $log '';
 
