@@ -111,7 +111,7 @@ sub isAvoid {
 ## -ws            crunch whitespace
 ## --ws-only      crunch only whitespace
 ## --no-warnings  crunch without asking for user approval
-## -verbose       output log info to screen
+## -verbose       (deprecated) output log info to screen
 ## --append-log   append to the log file, instead of replacing it
 ## -root:path     specify path to index.html or equivalent starting point (only one root may be given)
 ## -output:path   specify path to the output root (only one output root may be given)
@@ -133,7 +133,7 @@ foreach my $el (@ARGV) {
   if($el =~ /-ws(?!.)/) { $crunchWS = 1; }
   elsif($el =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
   elsif($el =~ /--no-warnings/) { $warningsOn = 0; }
-  elsif($el =~ /-verbose/) { $verbose = 1; }
+  #elsif($el =~ /-verbose/) { $verbose = 1; }
   elsif($el =~ /--append-log/) { $append = 1; }
   elsif($el =~ /-root:(.+)/) {
     if(defined($rootPath)) { print "$el ignored. You may only specify one root.\n"; }
@@ -222,10 +222,12 @@ print "\n";
   if($append) { $log = new FileHandle ">>$logPath"; }
   else { $log = new FileHandle "> $logPath"; }
   if(!defined($log)) {
-    print "Could not open log file for writing.\nSwitching to verbose mode.\n\n";
-    $verbose = 1;
+#    print "Could not open log file for writing.\nSwitching to verbose mode.\n\n";
+#    $verbose = 1;
+    print "Could not open log file for writing.\nExiting...\n\n";
     exit 1;
   }
+  else { select $log; }
 }
 
 # Isolate relative input path, filename
@@ -238,31 +240,27 @@ if($rootPath =~ /([^\/]+)$/) {
 if(!defined($outputPath)) { $outputPath = $inputPath; }
 
 
-
-if(!$verbose) { 
-  print "Please wait while code is crunched.\n\n" if $crunchNames;
-  print "Please wait while whitespace is crunched.\n\n" if($crunchWS && !$crunchNames);
-}
+print STDOUT "Please wait while code is crunched.\n\n" if $crunchNames;
+print STDOUT "Please wait while whitespace is crunched.\n\n" if($crunchWS && !$crunchNames);
 
 #####################################
 ## Start Meaningful HTML Logging
 #####################################
-if(defined($log)) {
-  print $log '<?xml version="1.0" encoding="UTF-8"?>', "\n";
-  print $log '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', "\n";
-  print $log '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">', "\n";
-  print $log '<head><title>Cruncher Log</title>', "\n";
+print '<?xml version="1.0" encoding="UTF-8"?>', "\n";
+print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', "\n";
+print '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">', "\n";
+print "<head>\n<title>Cruncher Log</title>\n";
 
-  print $log "<style>\n";
-  print $log 'body { font: 75%/1.6 "Myriad Pro", Frutiger, "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", Verdana, sans-serif; }';
-  print $log 'table { border-collapse: collapse; width: 85em; border: 1px solid #666; }';
-  print $log 'caption { font-size: 1.2em; font-weight: bold; margin: 1em 0; }';
-  print $log 'col { border-right: 1px solid #ccc; }';
-  print $log 'thead { background: #ccc url(images/bar.gif) repeat-x left center; border-top: 1px solid #a5a5a5; border-bottom: 1px solid #a5a5a5; }';
-  print $log 'th { font-weight: normal; text-align: left; }';
-  print $log 'th, td { padding: 0.1em 1em; }';
-  print $log 'tr:hover { background-color: #3d80df; color: #fff; }';
-  print $log 'thead tr:hover { background-color: transparent; color: inherit; }';
+print "<style>\n";
+print 'body { font: 75%/1.6 "Myriad Pro", Frutiger, "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", Verdana, sans-serif; }';
+print 'table { border-collapse: collapse; width: 85em; border: 1px solid #666; }';
+print 'caption { font-size: 1.2em; font-weight: bold; margin: 1em 0; }';
+print 'col { border-right: 1px solid #ccc; }';
+print 'thead { background: #ccc url(images/bar.gif) repeat-x left center; border-top: 1px solid #a5a5a5; border-bottom: 1px solid #a5a5a5; }';
+print 'th { font-weight: normal; text-align: left; }';
+print 'th, td { padding: 0.1em 1em; }';
+print 'tr:hover { background-color: #3d80df; color: #fff; }';
+print 'thead tr:hover { background-color: transparent; color: inherit; }';
 #  print $log '.even {
 #  background-color: #edf5ff;
 #}
@@ -299,217 +297,233 @@ if(defined($log)) {
 #  border-left: solid black 1px;
 #}';
 #
-  print $log "</style>\n<script>\n";
-  print $log '';
+print "\n</style>\n<script>\n";
+print '';
 
-  print $log "\n</script>\n</head>\n<body>\n<table>\n";
-}
+print "\n</script>\n</head>\n<body>\n";
 
-printBreak("CodeCruncher Copyright 2007 Eben Geer");
-printBreak("Input Path: $inputPath");
+#sub printHeading {
+#  my ($str, $type) = @_;
+#  print "
+#}
 
+#printHeading("CodeCruncher Copyright 2007 Eben Geer", 1);
+#printHeading("Input Path: $inputPath", 2);
+
+#printBreak("CodeCruncher Copyright 2007 Eben Geer");
+#printBreak("Input Path: $inputPath");
+
+print "<h1>CodeCruncher Copyright 2007 Eben Geer</h1>\n";
+print "<h2>Input Path: $inputPath</h2>\n";
 
 
 # search for external files only goes one level deep
 
-### Identify JavaScript source files ###
-printBreak("External source files (.js): Identifying...");
-while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
-  $filenames[@filenames] = $2;
-  printOut("$2 [FROM LINE ->] $1\n");
-  if(!$verbose) { print "."; }
-}
-printBreak("External source files (.js): Identified!");
+#### Identify JavaScript source files ###
+#printBreak("External source files (.js): Identifying...");
+#while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
+#  $filenames[@filenames] = $2;
+#  printOut("$2 [FROM LINE ->] $1\n");
+#  if(!$verbose) { print "."; }
+#}
+#printBreak("External source files (.js): Identified!");
+#
+#
+#### Identify CSS source files ###
+#printBreak("External source files (.css): Identifying...");
+#while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
+#  $filenames[@filenames] = $2;
+#  printOut("$2 [FROM LINE ->] $1\n");
+#  if(!$verbose) { print "."; }
+#}
+#printBreak("External source files (.css): Identified!");
+#
+#printBreak("External source files: Opening...");
+#for(my $i = 1; $i < @filenames; $i++) {
+#  my $fh = new FileHandle("< $inputPath$filenames[$i]");
+#  while(<$fh>) { $filestrings[$i] .= $_; }
+#  printOut("$filenames[$i]\n");
+#  if(!$verbose) { print "."; }
+#}
+#printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
+#
+#### Crunch Names #########################################################################
+#if($crunchNames) {
+#
+#for(my $i = 0; $i < @filenames; $i++) {
+#  printBreak("External Source File: $filenames[$i] - Start");
+#  printOut($filestrings[$i]);
+#  printBreak("External Source File: $filenames[$i] - End");
+#  if(!$verbose) { print "."; }
+#}
+#
+#printBreak("Comments: Extracting...");
+#for(my $i = 0; $i < @filestrings; $i++) {
+#  printOut("[$filenames[$i]]\n");
+#
+#  # HTML-style comments <!-- -->
+#  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { printOut("$1\n"); }
+#
+#  # C-style block comments /* */
+#  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { printOut("$1\n"); }
+#
+#  # C++ style single-line comments // - and then ;//
+#  while($filestrings[$i] =~ s"(^//.*)"") { printOut("$1\n"); }
+#  while($filestrings[$i] =~ s"(\s//.*)"") { printOut("$1\n"); }
+#  while($filestrings[$i] =~ s";(//.*)";") { printOut("$1\n"); }
+#  
+#  if(!$verbose) { print "."; }
+#}
+#printBreak("Comments: Extracted!");
+#
+#printBreak("Functions, Variables, and ID's: Identifying...");
+#
+#sub identifyNames {
+#  my ($type, $re) = @_;
+#  for(my $i = 0; $i < @filestrings; $i++) {
+#    printOut("[$filenames[$i]]\n");
+#    while($filestrings[$i] =~ m/$re/g) {
+#      if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
+#      elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
+#      else {
+#        $names[@names] = $2;
+#        printOut("Identified $type: '$2' [FROM LINE ->] $1\n");
+#      }
+#      if(!$verbose) { print "."; }
+#    }
+#  }
+#}
+#
+#identifyNames("Variable", '\n?(.*var\s+(\w+).*)');
+#identifyNames("Function", '\n?(.*function\s+(\w+)\s*\(.*)');
+#identifyNames("ID", '\n?(.*id="(\w+)".*)');
+#identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
+#
+#printBreak("Functions, Variables, and ID's: Identified!");
+#
+#printBreak("Functions, Variables, and ID's: Renaming...");
+#my @abbr;
+#my $n = @names;
+#my $offset = 0;
+#for(my $k = 0; $k < $n; $k++) {
+#  while(isKeyword($abbr[$k] = alphabase($k + $offset))) {
+#    $offset++;
+#  }
+#  if(!$verbose) { print "."; }
+#}
+#
+#### Substitute crunched names ###
+#for(my $j = 0; $j < @names; $j++) {
+#  printOut("['$abbr[$j]' substituted for '$names[$j]' in the following lines:]\n");
+#  for(my $i = 0; $i < @filestrings; $i++) {
+#    while($filestrings[$i] =~ s/(\n?)(.*)(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])(.*)/$1$2$abbr[$j]$4/) {
+#      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+#      if(!$verbose) { print "."; }
+#    }
+#  }
+#}
+#printBreak("Functions, Variables, and ID's: Renamed!");
+#
+##if(@updatePaths > 0) {
+#for my $el (@updatePaths) {
+#  printBreak("Updating dependent module: $el");
+#  open MODULEIN, "< $inputPath$el" or die "$inputPath$el  could not be opened for input. - $!\n";
+#  my $fstr;
+#  while(<MODULEIN>) { $fstr .= $_; }
+#  close MODULEIN;
+#
+#  for(my $j = 0; $j < @names; $j++) {
+#    printOut("[Substituting '$abbr[$j]' for '$names[$j]']\n");
+#    while($fstr =~ s/(\n?)(.*)(?<![\w<"])(?<!== ')($names[$j])(?! ?[\w])(?![">])(.*)/$1$2$abbr[$j]$4/) {   # only difference is " & "
+#      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+#      if(!$verbose) { print "."; }
+#    }
+#  }
+#  open MODULEOUT, "> $outputPath$el" or die "$outputPath$el could not be opened for output. - $!\n";
+#  print MODULEOUT $fstr;
+#  close MODULEOUT;
+#  printBreak("Updated dependent module: $el");
+#}
+#
+#}
+#### Done crunching names ############################################################################
+#
+#
+#### Crunch whitespace ###############################################################################
+#if($crunchWS) {
+#
+#for(my $i = 0; $i < @filenames; $i++) {
+#  printBreak("Source File Before Whitespace Removal: $filenames[$i] - Start");
+#  printOut($filestrings[$i]);
+#  printBreak("Source File Before Whitespace Removal: $filenames[$i] - End");
+#}
+#
+#sub removeWS {
+#  # 0 - item, 1 - filestring, 2 - regular expression
+#  printOut("[Substituting '$_[0]' for ' $_[0] ']\n");
+#  while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
+#    printOut("$2$_[0]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
+#    if(!$verbose) { print "."; }
+#  }
+#}
+#printBreak("Whitespace: Extracting...");
+#for(my $i = 0; $i < @filestrings; $i++) {
+#  printOut("[$filenames[$i]]\n");
+#
+#  # = + -
+#  removeWS('=', $filestrings[$i], '\s+=\s+');
+#  removeWS('+', $filestrings[$i], '\s+\+\s+');
+#  removeWS('-', $filestrings[$i], '\s+-\s+');
+#
+#  # < > || && ==
+#  removeWS('<', $filestrings[$i], '\s+<\s+');
+#  removeWS('>', $filestrings[$i], '\s+>\s+');
+#  removeWS('||', $filestrings[$i], '\s+\|\|\s+');
+#  removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
+#  removeWS('==', $filestrings[$i], '\s+==\s+');
+#  
+#  # ( ) { }
+#  removeWS('(', $filestrings[$i], '\s+\(|\(\s+');
+#  removeWS(')', $filestrings[$i], '\s+\)|\)\s+');
+#  removeWS('{', $filestrings[$i], '\s+\{|\{\s+');
+#  removeWS('}', $filestrings[$i], '\s+\}|\}\s+');
+#
+#  # leading and trailing whitespace
+#  $filestrings[$i] =~ s/;\s+/;/g;
+#  $filestrings[$i] =~ s/\n\s*//g;
+#
+#  printOut("[$filenames[$i]]\n");
+#  printOut("$filestrings[$i]\n");
+#}
+#printBreak("Whitespace: Extracted!");
+#
+#}
+#### Done crunching whitespace #########################################################################
+#
+#
+#### Output files ###
+#printBreak("Output files: Writing...");
+#for(my $i = 0; $i < @filenames; $i++) {
+#  printOut("$outputPath$filenames[$i]\n");
+#  open EXTERNAL, "> $outputPath$filenames[$i]" or die "$outputPath$filenames[$i] - $!\n";
+#  print EXTERNAL $filestrings[$i];
+#  close EXTERNAL;
+#  if(!$verbose) { print "."; }
+#}
+#printBreak("Output files: Written!");
+#
+#printBreak("CodeCruncher Finished!");
+#
 
-
-### Identify CSS source files ###
-printBreak("External source files (.css): Identifying...");
-while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
-  $filenames[@filenames] = $2;
-  printOut("$2 [FROM LINE ->] $1\n");
-  if(!$verbose) { print "."; }
-}
-printBreak("External source files (.css): Identified!");
-
-printBreak("External source files: Opening...");
-for(my $i = 1; $i < @filenames; $i++) {
-  my $fh = new FileHandle("< $inputPath$filenames[$i]");
-  while(<$fh>) { $filestrings[$i] .= $_; }
-  printOut("$filenames[$i]\n");
-  if(!$verbose) { print "."; }
-}
-printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
-
-### Crunch Names #########################################################################
-if($crunchNames) {
-
-for(my $i = 0; $i < @filenames; $i++) {
-  printBreak("External Source File: $filenames[$i] - Start");
-  printOut($filestrings[$i]);
-  printBreak("External Source File: $filenames[$i] - End");
-  if(!$verbose) { print "."; }
-}
-
-printBreak("Comments: Extracting...");
-for(my $i = 0; $i < @filestrings; $i++) {
-  printOut("[$filenames[$i]]\n");
-
-  # HTML-style comments <!-- -->
-  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { printOut("$1\n"); }
-
-  # C-style block comments /* */
-  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { printOut("$1\n"); }
-
-  # C++ style single-line comments // - and then ;//
-  while($filestrings[$i] =~ s"(^//.*)"") { printOut("$1\n"); }
-  while($filestrings[$i] =~ s"(\s//.*)"") { printOut("$1\n"); }
-  while($filestrings[$i] =~ s";(//.*)";") { printOut("$1\n"); }
-  
-  if(!$verbose) { print "."; }
-}
-printBreak("Comments: Extracted!");
-
-printBreak("Functions, Variables, and ID's: Identifying...");
-
-sub identifyNames {
-  my ($type, $re) = @_;
-  for(my $i = 0; $i < @filestrings; $i++) {
-    printOut("[$filenames[$i]]\n");
-    while($filestrings[$i] =~ m/$re/g) {
-      if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
-      elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
-      else {
-        $names[@names] = $2;
-        printOut("Identified $type: '$2' [FROM LINE ->] $1\n");
-      }
-      if(!$verbose) { print "."; }
-    }
-  }
-}
-
-identifyNames("Variable", '\n?(.*var\s+(\w+).*)');
-identifyNames("Function", '\n?(.*function\s+(\w+)\s*\(.*)');
-identifyNames("ID", '\n?(.*id="(\w+)".*)');
-identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
-
-printBreak("Functions, Variables, and ID's: Identified!");
-
-printBreak("Functions, Variables, and ID's: Renaming...");
-my @abbr;
-my $n = @names;
-my $offset = 0;
-for(my $k = 0; $k < $n; $k++) {
-  while(isKeyword($abbr[$k] = alphabase($k + $offset))) {
-    $offset++;
-  }
-  if(!$verbose) { print "."; }
-}
-
-### Substitute crunched names ###
-for(my $j = 0; $j < @names; $j++) {
-  printOut("['$abbr[$j]' substituted for '$names[$j]' in the following lines:]\n");
-  for(my $i = 0; $i < @filestrings; $i++) {
-    while($filestrings[$i] =~ s/(\n?)(.*)(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])(.*)/$1$2$abbr[$j]$4/) {
-      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-      if(!$verbose) { print "."; }
-    }
-  }
-}
-printBreak("Functions, Variables, and ID's: Renamed!");
-
-#if(@updatePaths > 0) {
-for my $el (@updatePaths) {
-  printBreak("Updating dependent module: $el");
-  open MODULEIN, "< $inputPath$el" or die "$inputPath$el  could not be opened for input. - $!\n";
-  my $fstr;
-  while(<MODULEIN>) { $fstr .= $_; }
-  close MODULEIN;
-
-  for(my $j = 0; $j < @names; $j++) {
-    printOut("[Substituting '$abbr[$j]' for '$names[$j]']\n");
-    while($fstr =~ s/(\n?)(.*)(?<![\w<"])(?<!== ')($names[$j])(?! ?[\w])(?![">])(.*)/$1$2$abbr[$j]$4/) {   # only difference is " & "
-      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-      if(!$verbose) { print "."; }
-    }
-  }
-  open MODULEOUT, "> $outputPath$el" or die "$outputPath$el could not be opened for output. - $!\n";
-  print MODULEOUT $fstr;
-  close MODULEOUT;
-  printBreak("Updated dependent module: $el");
-}
-
-}
-### Done crunching names ############################################################################
-
-
-### Crunch whitespace ###############################################################################
-if($crunchWS) {
-
-for(my $i = 0; $i < @filenames; $i++) {
-  printBreak("Source File Before Whitespace Removal: $filenames[$i] - Start");
-  printOut($filestrings[$i]);
-  printBreak("Source File Before Whitespace Removal: $filenames[$i] - End");
-}
-
-sub removeWS {
-  # 0 - item, 1 - filestring, 2 - regular expression
-  printOut("[Substituting '$_[0]' for ' $_[0] ']\n");
-  while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
-    printOut("$2$_[0]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-    if(!$verbose) { print "."; }
-  }
-}
-printBreak("Whitespace: Extracting...");
-for(my $i = 0; $i < @filestrings; $i++) {
-  printOut("[$filenames[$i]]\n");
-
-  # = + -
-  removeWS('=', $filestrings[$i], '\s+=\s+');
-  removeWS('+', $filestrings[$i], '\s+\+\s+');
-  removeWS('-', $filestrings[$i], '\s+-\s+');
-
-  # < > || && ==
-  removeWS('<', $filestrings[$i], '\s+<\s+');
-  removeWS('>', $filestrings[$i], '\s+>\s+');
-  removeWS('||', $filestrings[$i], '\s+\|\|\s+');
-  removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
-  removeWS('==', $filestrings[$i], '\s+==\s+');
-  
-  # ( ) { }
-  removeWS('(', $filestrings[$i], '\s+\(|\(\s+');
-  removeWS(')', $filestrings[$i], '\s+\)|\)\s+');
-  removeWS('{', $filestrings[$i], '\s+\{|\{\s+');
-  removeWS('}', $filestrings[$i], '\s+\}|\}\s+');
-
-  # leading and trailing whitespace
-  $filestrings[$i] =~ s/;\s+/;/g;
-  $filestrings[$i] =~ s/\n\s*//g;
-
-  printOut("[$filenames[$i]]\n");
-  printOut("$filestrings[$i]\n");
-}
-printBreak("Whitespace: Extracted!");
-
-}
-### Done crunching whitespace #########################################################################
-
-
-### Output files ###
-printBreak("Output files: Writing...");
-for(my $i = 0; $i < @filenames; $i++) {
-  printOut("$outputPath$filenames[$i]\n");
-  open EXTERNAL, "> $outputPath$filenames[$i]" or die "$outputPath$filenames[$i] - $!\n";
-  print EXTERNAL $filestrings[$i];
-  close EXTERNAL;
-  if(!$verbose) { print "."; }
-}
-printBreak("Output files: Written!");
-
-printBreak("CodeCruncher Finished!");
-
-if(defined $log) {
-  print $log '</body></html>';
-}
+print "</body>\n</html>\n";
 
 undef $log;
-if(!$verbose) { print "\n\n"; }
+
+print STDOUT "\n\n";
+
+
+
+
+
+
+
