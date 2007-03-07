@@ -413,8 +413,8 @@ for(my $i = 0; $i < @filestrings; $i++) {
   $filestrings[$i] =~ s/;\s+/;/g;
   $filestrings[$i] =~ s/\n\s*//g;
 
-  print "[$filenames[$i]]\n";
-  print "$filestrings[$i]\n";
+  printOut("[$filenames[$i]]\n");
+  printOut("$filestrings[$i]\n");
 }
 printBreak("Whitespace: Extracted!");
 
