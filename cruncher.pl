@@ -229,7 +229,10 @@ if(!defined($outputPath)) { $outputPath = $inputPath; }
 
 
 
-if(!$verbose) { print "Please wait while code is crunched.\n\n"; }
+if(!$verbose) { 
+  print "Please wait while code is crunched.\n\n" if $crunchNames;
+  print "Please wait while whitespace is crunched.\n\n" if($crunchWS && !$crunchNames);
+}
 
 
 
