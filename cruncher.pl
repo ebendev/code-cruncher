@@ -46,17 +46,27 @@ sub printBreak {
     print "=" while($i++ < 69 - length $str);
     print "\n";
   }
-  $i = 0;
+#  $i = 0;
+#  if(defined $log) {
+#    print $log "===> $str <===";
+#    print $log "=" while($i++ < 69 - length $str);
+#    print $log "\n";
+#  }
   if(defined $log) {
-    print $log "===> $str <===";
-    print $log "=" while($i++ < 69 - length $str);
-    print $log "\n";
+    print $log "</table>\n<table>\n";
+    print $log "<caption>$str</caption>\n";
   }
 }
 sub printOut {
   my ($str) = @_;
   if($verbose) { print $str; }
-  if(defined $log) { print $log $str; }
+  if(defined $log) {
+    $str =~ s/</&lt;/g;
+    $str =~ s/>/&gt;/g;
+    #$str =~ s/\n//g;
+
+    print $log "<tr><td><pre>$str</pre></td></tr>\n";
+  }
 }
 
 #a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
@@ -238,21 +248,19 @@ if(!$verbose) {
 ## Start Meaningful HTML Logging
 #####################################
 if(defined($log)) {
-  print $log '<?xml version="1.0" encoding="UTF-8"?>';
-  print $log '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-  print $log '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">';
-  print $log '<head><title>Cruncher Log</title>';
+  print $log '<?xml version="1.0" encoding="UTF-8"?>', "\n";
+  print $log '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', "\n";
+  print $log '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">', "\n";
+  print $log '<head><title>Cruncher Log</title>', "\n";
 
-  print $log '<style>';
+  print $log "<style>\n";
   print $log '';
 
-  print $log '</style><script>';
+  print $log "</style>\n<script>\n";
   print $log '';
 
-  print $log '</script></head><body>';
+  print $log "\n</script>\n</head>\n<body>\n<table>\n";
 }
-
-
 
 printBreak("CodeCruncher Copyright 2007 Eben Geer");
 printBreak("Input Path: $inputPath");
