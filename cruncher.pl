@@ -476,26 +476,29 @@ for(my $j = 0; $j < @names; $j++) {
 }
 printTableFoot;
 
-##if(@updatePaths > 0) {
-#for my $el (@updatePaths) {
+#if(@updatePaths > 0) {
+for my $el (@updatePaths) {
+  printTableHead("Updating dependent module: $el", "Abbr.", "Source Line", "Name", "From Source Line", "From File");
 #  printBreak("Updating dependent module: $el");
-#  open MODULEIN, "< $inputPath$el" or die "$inputPath$el  could not be opened for input. - $!\n";
-#  my $fstr;
-#  while(<MODULEIN>) { $fstr .= $_; }
-#  close MODULEIN;
-#
-#  for(my $j = 0; $j < @names; $j++) {
+  open MODULEIN, "< $inputPath$el" or die "$inputPath$el  could not be opened for input. - $!\n";
+  my $fstr;
+  while(<MODULEIN>) { $fstr .= $_; }
+  close MODULEIN;
+
+  for(my $j = 0; $j < @names; $j++) {
 #    printOut("[Substituting '$abbr[$j]' for '$names[$j]']\n");
-#    while($fstr =~ s/(\n?)(.*)(?<![\w<"])(?<!== ')($names[$j])(?! ?[\w])(?![">])(.*)/$1$2$abbr[$j]$4/) {   # only difference is " & "
+    while($fstr =~ s/(\n?)(.*)(?<![\w<"])(?<!== ')($names[$j])(?! ?[\w])(?![">])(.*)/$1$2$abbr[$j]$4/) {   # only difference is " & "
+      tRow("$abbr[$j]|$3", $abbr[$j], cleanHTML("$2$abbr[$j]$4"), $3, cleanHTML("$2$3$4"), $el);
 #      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-#      if(!$verbose) { print "."; }
-#    }
-#  }
-#  open MODULEOUT, "> $outputPath$el" or die "$outputPath$el could not be opened for output. - $!\n";
-#  print MODULEOUT $fstr;
-#  close MODULEOUT;
-#  printBreak("Updated dependent module: $el");
-#}
+      print STDOUT ".";
+    }
+  }
+  open MODULEOUT, "> $outputPath$el" or die "$outputPath$el could not be opened for output. - $!\n";
+  print MODULEOUT $fstr;
+  close MODULEOUT;
+  #printBreak("Updated dependent module: $el");
+  printTableFoot;
+}
 
 }
 ### Done crunching names ############################################################################
