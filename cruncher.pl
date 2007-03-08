@@ -375,15 +375,16 @@ while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
 }
 printTableFoot;
 
-#printBreak("External source files: Opening...");
-#for(my $i = 1; $i < @filenames; $i++) {
-#  my $fh = new FileHandle("< $inputPath$filenames[$i]");
-#  while(<$fh>) { $filestrings[$i] .= $_; }
-#  printOut("$filenames[$i]\n");
-#  if(!$verbose) { print "."; }
-#}
-#printBreak("(" . scalar @filestrings - 1 . ") External source files: Opened!");
-#
+
+printTableHead("Opening External Source Files...", "File", "Status");
+for(my $i = 1; $i < @filenames; $i++) {
+  my $fh = new FileHandle("< $inputPath$filenames[$i]");
+  while(<$fh>) { $filestrings[$i] .= $_; }
+  printTableRow($filenames[$i], "Success"); # this is a stub!!!
+  print STDOUT ".";
+}
+printTableFoot;
+
 #### Crunch Names #########################################################################
 #if($crunchNames) {
 #
