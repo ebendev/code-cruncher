@@ -373,12 +373,18 @@ sub cleanHTML {
 ### Identify JavaScript source files ###
 printTableHead("External source files (.js)", "File", "From Source Line");
 while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
-  my $line = cleanHTML($1);
-  my $fname = $2;
-  $filenames[@filenames] = $fname;
+  #my $line = cleanHTML($1);
+  #my $fname = $2;
+  #$filenames[@filenames] = $fname;
 
-  $line =~ s/$fname/<strong>$fname<\/strong>/g;
-  printTableRow($fname, $line);
+  #$line =~ s/$fname/<strong>$fname<\/strong>/g;
+  #tRow($fname, $fname, $line);
+
+  #my $fname = $1;
+  #push @filenames, $fname;
+  
+  push @filenames, $2;
+  tRow($2, $2, cleanHTML($1));
   print STDOUT ".";
 }
 printTableFoot;
@@ -387,12 +393,18 @@ printTableFoot;
 ### Identify CSS source files ###
 printTableHead("External source files (.css)", "File", "From Source Line");
 while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
-  my $line = cleanHTML($1);
-  my $fname = $2;
-  $filenames[@filenames] = $fname;
+#  my $line = cleanHTML($1);
+#  my $fname = $2;
+#  $filenames[@filenames] = $fname;
+#
+#  $line =~ s/$fname/<strong>$fname<\/strong>/g;
+#  tRow($fname, $fname, $line);
 
-  $line =~ s/$fname/<strong>$fname<\/strong>/g;
-  printTableRow($fname, $line);
+#  my $fname = $1;
+#  push(@filenames, $fname);
+#  tRow($1, $1, cleanHTML($1));
+  push @filenames, $2;
+  tRow($2, $2, cleanHTML($1));
   print STDOUT ".";
 }
 printTableFoot;
@@ -402,7 +414,7 @@ printTableHead("Opening External Source Files...", "File", "Status");
 for(my $i = 1; $i < @filenames; $i++) {
   my $fh = new FileHandle("< $inputPath$filenames[$i]");
   while(<$fh>) { $filestrings[$i] .= $_; }
-  printTableRow($filenames[$i], "Success"); # this is a stub!!!
+  printTableRow($filenames[$i], "Opened"); # this is a stub!!!
   print STDOUT ".";
 }
 printTableFoot;
@@ -412,7 +424,7 @@ if($crunchNames) {
 
 for(my $i = 0; $i < @filenames; $i++) {
   printTableHead("External Source File: $filenames[$i]", "");
-  printTableRow('<pre>' . cleanHTML($filestrings[$i]) . '</pre>');
+  printTableRow('<pre>'.cleanHTML($filestrings[$i]).'</pre>');
   print STDOUT ".";
 }
 
@@ -424,8 +436,8 @@ for(my $i = 0; $i < @filestrings; $i++) {
   # C-style block comments /* */
   while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { tRow('\/\*|\*\/', '<pre>'.cleanHTML($1).'</pre>', $filenames[$i]); }
 
-  # C++ style single-line comments // - and then ;//  # should be s///m?
-  while($filestrings[$i] =~ s"(^//.*)"") { tRow('//', cleanHTML($1), $filenames[$i]); }
+  # C++ style single-line comments // - and then ;//
+  while($filestrings[$i] =~ s"(^//.*)""m) { tRow('//', cleanHTML($1), $filenames[$i]); }
   while($filestrings[$i] =~ s"(\s//.*)"") { tRow('//', cleanHTML($1), $filenames[$i]); }
   while($filestrings[$i] =~ s";(//.*)";") { tRow('//', cleanHTML($1), $filenames[$i]); }
 
