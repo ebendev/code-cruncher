@@ -336,7 +336,7 @@ sub printTableRow {
   print "</tr>\n";
 }
 
-sub printTableRowBold {
+sub tRow {
   my $boldstr = shift @_;
   my @cells = @_;
   my @bold;
@@ -356,9 +356,6 @@ sub printTableRowBold {
   }
 
   printTableRow(@cells);
-#  print '<tr>';
-#  print "<td>$_</td>" for @cells;
-#  print "</tr>\n";
 }
 
 sub printTableFoot {
@@ -422,30 +419,15 @@ for(my $i = 0; $i < @filenames; $i++) {
 printTableHead("Extracting Comments...", "Comment", "From File");
 for(my $i = 0; $i < @filestrings; $i++) {
   # HTML-style comments <!-- -->
-  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { 
-  
-#    printTableRow(cleanHTML($1), $filenames[$i]);
-    printTableRowBold('&lt;!--|--&gt;', cleanHTML($1), $filenames[$i]);
-  }
+  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { tRow('&lt;!--|--&gt;', cleanHTML($1), $filenames[$i]); }
 
   # C-style block comments /* */
-  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) {
-    #my $line = cleanHTML($1);
-    #$line =~ s/\/\*/<strong>\/*<\/strong>/g;
-    #$line =~ s/\*\//<strong>*\/<\/strong>/g;
-    #printTableRow("<pre>$line</pre>", $filenames[$i]);
+  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { tRow('\/\*|\*\/', '<pre>'.cleanHTML($1).'</pre>', $filenames[$i]); }
 
-    #printTableRowEx('\/\*|\*\/', "<pre>$line</pre>", $filenames[$i]);
-    printTableRowBold('\/\*|\*\/', '<pre>' . cleanHTML($1) . '</pre>', $filenames[$i]);
-  }
-
-  # C++ style single-line comments // - and then ;//
-  while($filestrings[$i] =~ s"(^//.*)"") {  # should be s///m?
-    printTableRowBold('//', cleanHTML($1), $filenames[$i]);
-#    printTableRow(cleanHTML($1), $filenames[$i]);
-  }
-  while($filestrings[$i] =~ s"(\s//.*)"") { printTableRowBold('//', cleanHTML($1), $filenames[$i]); }
-  while($filestrings[$i] =~ s";(//.*)";") { printTableRowBold('//', cleanHTML($1), $filenames[$i]); }
+  # C++ style single-line comments // - and then ;//  # should be s///m?
+  while($filestrings[$i] =~ s"(^//.*)"") { tRow('//', cleanHTML($1), $filenames[$i]); }
+  while($filestrings[$i] =~ s"(\s//.*)"") { tRow('//', cleanHTML($1), $filenames[$i]); }
+  while($filestrings[$i] =~ s";(//.*)";") { tRow('//', cleanHTML($1), $filenames[$i]); }
 
   print STDOUT ".";
 }
