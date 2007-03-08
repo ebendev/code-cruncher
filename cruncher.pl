@@ -430,19 +430,15 @@ printTableFoot;
 sub identifyNames {
   my ($type, $re) = @_;
   for(my $i = 0; $i < @filestrings; $i++) {
-#    printOut("[$filenames[$i]]\n");
     while($filestrings[$i] =~ m/$re/g) {
       if(isAvoid($2)) { 
         tRow($2, "Avoid", $type, $2, cleanHTML($1), $filenames[$i]);
-#        printOut("Avoided: '$2' [FROM LINE ->] $1\n");
       }
       elsif(isCollision($2)) {
         tRow($2, "Ignore", $type, $2, cleanHTML($1), $filenames[$i]);
-#        printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n");
       }
       else {
         $names[@names] = $2;
-#        printOut("Identified $type: '$2' [FROM LINE ->] $1\n");
         tRow($2, "Rename", $type, $2, cleanHTML($1), $filenames[$i]);
       }
       print STDOUT ".";
@@ -450,36 +446,36 @@ sub identifyNames {
   }
 }
 
-printTableHead("Functions, Variables, and ID's", "Status", "Type", "Name", "From Source Line", "File");
+printTableHead("Identifying Functions, Variables, and ID's", "Status", "Type", "Name", "From Source Line", "File");
 identifyNames("Variable", '\n?(.*var\s+(\w+).*)');
 identifyNames("Function", '\n?(.*function\s+(\w+)\s*\(.*)');
 identifyNames("ID", '\n?(.*id="(\w+)".*)');
 identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
 printTableFoot;
 
-#printBreak("Functions, Variables, and ID's: Renaming...");
-#my @abbr;
-#my $n = @names;
-#my $offset = 0;
-#for(my $k = 0; $k < $n; $k++) {
-#  while(isKeyword($abbr[$k] = alphabase($k + $offset))) {
-#    $offset++;
-#  }
-#  if(!$verbose) { print "."; }
-#}
-#
-#### Substitute crunched names ###
-#for(my $j = 0; $j < @names; $j++) {
-#  printOut("['$abbr[$j]' substituted for '$names[$j]' in the following lines:]\n");
-#  for(my $i = 0; $i < @filestrings; $i++) {
-#    while($filestrings[$i] =~ s/(\n?)(.*)(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])(.*)/$1$2$abbr[$j]$4/) {
-#      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-#      if(!$verbose) { print "."; }
-#    }
-#  }
-#}
-#printBreak("Functions, Variables, and ID's: Renamed!");
-#
+#printTableHead("Renaming Functions, Variables, and ID's", "Name", "Source Line", "File");
+my @abbr;
+my $n = @names;
+my $offset = 0;
+for(my $k = 0; $k < $n; $k++) {
+  while(isKeyword($abbr[$k] = alphabase($k + $offset))) {
+    $offset++;
+  }
+  print STDOUT ".";
+}
+
+### Substitute crunched names ###
+for(my $j = 0; $j < @names; $j++) {
+  printTableHead("'$abbr[$j]' substituted for '$names[$j]' in the following lines:", "Abbr.", "Source Line", "Name", "From Source Line", "File");
+  for(my $i = 0; $i < @filestrings; $i++) {
+    while($filestrings[$i] =~ s/(\n?)(.*)(?<![\w<])(?<!== ')($names[$j])(?! ?[\w])(?![>])(.*)/$1$2$abbr[$j]$4/) {
+      tRow("$abbr[$j]|$3", $abbr[$j], cleanHTML("$2$abbr[$j]$4"), $3, cleanHTML("$2$3$4"), $filenames[$i]);
+      print STDOUT ".";
+    }
+  }
+}
+printTableFoot;
+
 ##if(@updatePaths > 0) {
 #for my $el (@updatePaths) {
 #  printBreak("Updating dependent module: $el");
