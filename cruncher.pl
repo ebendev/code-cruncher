@@ -344,7 +344,7 @@ sub cleanHTML {
   (my $str) = @_;
   $str =~ s/</&lt;/g;
   $str =~ s/>/&gt;/g;
-  $str =~ s/\n//g;
+  $str =~ s/\n$//g;
   $str;
 }
 
@@ -385,16 +385,15 @@ for(my $i = 1; $i < @filenames; $i++) {
 }
 printTableFoot;
 
-#### Crunch Names #########################################################################
-#if($crunchNames) {
-#
-#for(my $i = 0; $i < @filenames; $i++) {
-#  printBreak("External Source File: $filenames[$i] - Start");
-#  printOut($filestrings[$i]);
-#  printBreak("External Source File: $filenames[$i] - End");
-#  if(!$verbose) { print "."; }
-#}
-#
+### Crunch Names #########################################################################
+if($crunchNames) {
+
+for(my $i = 0; $i < @filenames; $i++) {
+  printTableHead("External Source File: $filenames[$i]", "");
+  printTableRow('<pre>' . cleanHTML($filestrings[$i]) . '</pre>');
+  print STDOUT ".";
+}
+
 #printBreak("Comments: Extracting...");
 #for(my $i = 0; $i < @filestrings; $i++) {
 #  printOut("[$filenames[$i]]\n");
@@ -409,7 +408,7 @@ printTableFoot;
 #  while($filestrings[$i] =~ s"(^//.*)"") { printOut("$1\n"); }
 #  while($filestrings[$i] =~ s"(\s//.*)"") { printOut("$1\n"); }
 #  while($filestrings[$i] =~ s";(//.*)";") { printOut("$1\n"); }
-#  
+#
 #  if(!$verbose) { print "."; }
 #}
 #printBreak("Comments: Extracted!");
@@ -482,11 +481,11 @@ printTableFoot;
 #  close MODULEOUT;
 #  printBreak("Updated dependent module: $el");
 #}
-#
-#}
-#### Done crunching names ############################################################################
-#
-#
+
+}
+### Done crunching names ############################################################################
+
+
 #### Crunch whitespace ###############################################################################
 #if($crunchWS) {
 #
