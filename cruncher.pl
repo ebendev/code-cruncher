@@ -394,25 +394,28 @@ for(my $i = 0; $i < @filenames; $i++) {
   print STDOUT ".";
 }
 
-#printBreak("Comments: Extracting...");
-#for(my $i = 0; $i < @filestrings; $i++) {
-#  printOut("[$filenames[$i]]\n");
-#
-#  # HTML-style comments <!-- -->
-#  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { printOut("$1\n"); }
-#
-#  # C-style block comments /* */
-#  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { printOut("$1\n"); }
-#
-#  # C++ style single-line comments // - and then ;//
-#  while($filestrings[$i] =~ s"(^//.*)"") { printOut("$1\n"); }
-#  while($filestrings[$i] =~ s"(\s//.*)"") { printOut("$1\n"); }
-#  while($filestrings[$i] =~ s";(//.*)";") { printOut("$1\n"); }
-#
-#  if(!$verbose) { print "."; }
-#}
-#printBreak("Comments: Extracted!");
-#
+printTableHead("Extracting Comments...", "Comment", "From File");
+for(my $i = 0; $i < @filestrings; $i++) {
+  # HTML-style comments <!-- -->
+  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { printTableRow(cleanHTML($1), $filenames[$i]); }
+
+  # C-style block comments /* */
+  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { 
+    my $line = cleanHTML($1);
+    $line =~ s/\/\*/<strong>\/*<\/strong>/g;
+    $line =~ s/\*\//<strong>*\/<\/strong>/g;
+    printTableRow("<pre>$line</pre>", $filenames[$i]);
+  }
+
+  # C++ style single-line comments // - and then ;//
+  while($filestrings[$i] =~ s"(^//.*)"") { printTableRow(cleanHTML($1), $filenames[$i]); }
+  while($filestrings[$i] =~ s"(\s//.*)"") { printTableRow(cleanHTML($1), $filenames[$i]); }
+  while($filestrings[$i] =~ s";(//.*)";") { printTableRow(cleanHTML($1), $filenames[$i]); }
+
+  print STDOUT ".";
+}
+printTableFoot;
+
 #printBreak("Functions, Variables, and ID's: Identifying...");
 #
 #sub identifyNames {
