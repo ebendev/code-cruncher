@@ -313,11 +313,20 @@ print "\n</script>\n</head>\n<body>\n";
 #printBreak("CodeCruncher Copyright 2007 Eben Geer");
 #printBreak("Input Path: $inputPath");
 
-print "<h1>CodeCruncher Copyright 2007 Eben Geer</h1>\n";
+print "<h1>CodeCruncher &copy; 2007 Eben Geer</h1>\n";
 print "<h2>Input Path: $inputPath</h2>\n";
 
 
+
 # search for external files only goes one level deep
+
+sub cleanHTML {
+  (my $str) = @_;
+  $str =~ s/</&lt;/g;
+  $str =~ s/>/&gt;/g;
+  $str =~ s/\n//g;
+  $str;
+}
 
 ### Identify JavaScript source files ###
 print "<table>\n";
@@ -325,14 +334,11 @@ print "<caption>External source files (.js)</caption>\n";
 print "<tr><th>File</th><th>From Source Line</th></tr>\n";
 
 while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
+  my $line = cleanHTML($1);
   my $fname = $2;
   $filenames[@filenames] = $fname;
-  my $line = $1;
-  $line =~ s/</&lt;/g;
-  $line =~ s/>/&gt;/g;
-  $line =~ s/\n//g;
+
   $line =~ s/$fname/<strong>$fname<\/strong>/g;
-#  printOut("$2 [FROM LINE ->] $1\n");
   print "<tr><td>$fname</td><td>$line</td></tr>\n";
   print STDOUT ".";
 }
