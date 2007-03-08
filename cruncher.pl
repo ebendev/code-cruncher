@@ -330,6 +330,30 @@ sub printTableHead {
   print "</tr>\n";
 }
 
+sub printTableRowEx {
+  my $boldstr = shift @_;
+  my @cells = @_;
+  my @bold;
+
+  if(defined $boldstr) {
+    while($boldstr =~ /\|?([^|]+)/g) {
+      push(@bold, $1);
+    }
+    for my $el (@cells) {
+      for(@bold) {
+        my $re = $_;
+        my $str = $re;
+        $str =~ s/\\//g;
+        $el =~ s/$re/<strong>$str<\/strong>/;
+      }
+    }
+  }
+
+  print '<tr>';
+  print "<td>$_</td>" for @cells;
+  print "</tr>\n";
+}
+
 sub printTableRow {
   print '<tr>';
   print "<td>$_</td>" for @_;
@@ -401,10 +425,13 @@ for(my $i = 0; $i < @filestrings; $i++) {
 
   # C-style block comments /* */
   while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { 
-    my $line = cleanHTML($1);
-    $line =~ s/\/\*/<strong>\/*<\/strong>/g;
-    $line =~ s/\*\//<strong>*\/<\/strong>/g;
-    printTableRow("<pre>$line</pre>", $filenames[$i]);
+    #my $line = cleanHTML($1);
+    #$line =~ s/\/\*/<strong>\/*<\/strong>/g;
+    #$line =~ s/\*\//<strong>*\/<\/strong>/g;
+    #printTableRow("<pre>$line</pre>", $filenames[$i]);
+
+    #printTableRowEx('\/\*|\*\/', "<pre>$line</pre>", $filenames[$i]);
+    printTableRowEx('\/\*|\*\/', '<pre>' . cleanHTML($1) . '</pre>', $filenames[$i]);
   }
 
   # C++ style single-line comments // - and then ;//
