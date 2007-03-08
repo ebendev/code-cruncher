@@ -422,10 +422,14 @@ for(my $i = 0; $i < @filenames; $i++) {
 printTableHead("Extracting Comments...", "Comment", "From File");
 for(my $i = 0; $i < @filestrings; $i++) {
   # HTML-style comments <!-- -->
-  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { printTableRow(cleanHTML($1), $filenames[$i]); }
+  while($filestrings[$i] =~ s/(<!--(?!.{1,10}import).*?-->)//s) { 
+  
+#    printTableRow(cleanHTML($1), $filenames[$i]);
+    printTableRowBold('&lt;!--|--&gt;', cleanHTML($1), $filenames[$i]);
+  }
 
   # C-style block comments /* */
-  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) { 
+  while($filestrings[$i] =~ s"(/\*.*?\*/)""s) {
     #my $line = cleanHTML($1);
     #$line =~ s/\/\*/<strong>\/*<\/strong>/g;
     #$line =~ s/\*\//<strong>*\/<\/strong>/g;
