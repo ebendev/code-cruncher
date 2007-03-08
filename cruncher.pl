@@ -319,16 +319,26 @@ print "<h2>Input Path: $inputPath</h2>\n";
 
 # search for external files only goes one level deep
 
-#### Identify JavaScript source files ###
-#printBreak("External source files (.js): Identifying...");
-#while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
-#  $filenames[@filenames] = $2;
+### Identify JavaScript source files ###
+print "<table>\n";
+print "<caption>External source files (.js)</caption>\n";
+print "<tr><th>File</th><th>From Source Line</th></tr>\n";
+
+while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
+  my $fname = $2;
+  $filenames[@filenames] = $fname;
+  my $line = $1;
+  $line =~ s/</&lt;/g;
+  $line =~ s/>/&gt;/g;
+  $line =~ s/\n//g;
+  $line =~ s/$fname/<strong>$fname<\/strong>/g;
 #  printOut("$2 [FROM LINE ->] $1\n");
-#  if(!$verbose) { print "."; }
-#}
-#printBreak("External source files (.js): Identified!");
-#
-#
+  print "<tr><td>$fname</td><td>$line</td></tr>\n";
+  print STDOUT ".";
+}
+print "</table>\n\n";
+
+
 #### Identify CSS source files ###
 #printBreak("External source files (.css): Identifying...");
 #while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
