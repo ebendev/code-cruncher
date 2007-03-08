@@ -253,12 +253,14 @@ print "<head>\n<title>Cruncher Log</title>\n";
 
 print "<style>\n";
 print 'body { font: 75%/1.6 "Myriad Pro", Frutiger, "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", Verdana, sans-serif; }';
+#print 'body { font: 10pt "Courier New", monospace; }';
 print 'table { border-collapse: collapse; width: 85em; border: 1px solid #666; }';
 print 'caption { font-size: 1.2em; font-weight: bold; margin: 1em 0; }';
 print 'col { border-right: 1px solid #ccc; }';
-print 'thead { background: #ccc url(images/bar.gif) repeat-x left center; border-top: 1px solid #a5a5a5; border-bottom: 1px solid #a5a5a5; }';
-print 'th { font-weight: normal; text-align: left; }';
+#print 'thead { background: #ccc url(images/bar.gif) repeat-x left center; border-top: 1px solid #a5a5a5; border-bottom: 1px solid #a5a5a5; }';
+print 'th { background: #bbb; font-weight: normal; text-align: left; }';
 print 'th, td { padding: 0.1em 1em; }';
+print 'td { font: 10pt "Courier New", monospace; }';
 print 'tr:hover { background-color: #3d80df; color: #fff; }';
 print 'thead tr:hover { background-color: transparent; color: inherit; }';
 #  print $log '.even {
@@ -344,16 +346,38 @@ while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
 }
 print "</table>\n\n";
 
+sub printTableHead {
+  my ($caption) = shift @_;
+  print "<table>\n";
+  print "<caption>$caption</caption>\n";
+  print '<tr>';
+  print "<th>$_</th>" for @_;
+  print "</tr>\n";
+}
 
-#### Identify CSS source files ###
-#printBreak("External source files (.css): Identifying...");
-#while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
-#  $filenames[@filenames] = $2;
-#  printOut("$2 [FROM LINE ->] $1\n");
-#  if(!$verbose) { print "."; }
-#}
-#printBreak("External source files (.css): Identified!");
-#
+sub printTableRow {
+  print '<tr>';
+  print "<td>$_</td>" for @_;
+  print "</tr>\n";
+}
+
+sub printTableFoot {
+  print "</table>\n\n";
+}
+
+### Identify CSS source files ###
+printTableHead("External source files (.css)", "File", "From Source Line");
+while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
+  my $line = cleanHTML($1);
+  my $fname = $2;
+  $filenames[@filenames] = $fname;
+
+  $line =~ s/$fname/<strong>$fname<\/strong>/g;
+  printTableRow($fname, $line);
+  print STDOUT ".";
+}
+printTableFoot;
+
 #printBreak("External source files: Opening...");
 #for(my $i = 1; $i < @filenames; $i++) {
 #  my $fh = new FileHandle("< $inputPath$filenames[$i]");
