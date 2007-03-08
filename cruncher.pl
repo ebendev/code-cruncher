@@ -330,7 +330,13 @@ sub printTableHead {
   print "</tr>\n";
 }
 
-sub printTableRowEx {
+sub printTableRow {
+  print '<tr>';
+  print "<td>$_</td>" for @_;
+  print "</tr>\n";
+}
+
+sub printTableRowBold {
   my $boldstr = shift @_;
   my @cells = @_;
   my @bold;
@@ -349,15 +355,10 @@ sub printTableRowEx {
     }
   }
 
-  print '<tr>';
-  print "<td>$_</td>" for @cells;
-  print "</tr>\n";
-}
-
-sub printTableRow {
-  print '<tr>';
-  print "<td>$_</td>" for @_;
-  print "</tr>\n";
+  printTableRow(@cells);
+#  print '<tr>';
+#  print "<td>$_</td>" for @cells;
+#  print "</tr>\n";
 }
 
 sub printTableFoot {
@@ -431,7 +432,7 @@ for(my $i = 0; $i < @filestrings; $i++) {
     #printTableRow("<pre>$line</pre>", $filenames[$i]);
 
     #printTableRowEx('\/\*|\*\/', "<pre>$line</pre>", $filenames[$i]);
-    printTableRowEx('\/\*|\*\/', '<pre>' . cleanHTML($1) . '</pre>', $filenames[$i]);
+    printTableRowBold('\/\*|\*\/', '<pre>' . cleanHTML($1) . '</pre>', $filenames[$i]);
   }
 
   # C++ style single-line comments // - and then ;//
