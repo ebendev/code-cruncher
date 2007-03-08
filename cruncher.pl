@@ -246,6 +246,7 @@ print STDOUT "Please wait while whitespace is crunched.\n\n" if($crunchWS && !$c
 #####################################
 ## Start Meaningful HTML Logging
 #####################################
+unless($append) {
 print '<?xml version="1.0" encoding="UTF-8"?>', "\n";
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', "\n";
 print '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">', "\n";
@@ -303,6 +304,7 @@ print "\n</style>\n<script>\n";
 print '';
 
 print "\n</script>\n</head>\n<body>\n";
+}
 
 #sub printHeading {
 #  my ($str, $type) = @_;
@@ -500,85 +502,102 @@ for my $el (@updatePaths) {
   printTableFoot;
 }
 
+unless($crunchWS) {
+  for(my $i = 0; $i < @filenames; $i++) {
+    printTableHead("Crunched Source File: $filenames[$i]", "");
+    printTableRow('<pre>'.cleanHTML($filestrings[$i]).'</pre>');
+    printTableFoot;
+    print STDOUT ".";
+  }
+}
+
 }
 ### Done crunching names ############################################################################
 
 
-#### Crunch whitespace ###############################################################################
-#if($crunchWS) {
-#
-#for(my $i = 0; $i < @filenames; $i++) {
-#  printBreak("Source File Before Whitespace Removal: $filenames[$i] - Start");
-#  printOut($filestrings[$i]);
-#  printBreak("Source File Before Whitespace Removal: $filenames[$i] - End");
-#}
-#
-#sub removeWS {
-#  # 0 - item, 1 - filestring, 2 - regular expression
+### Crunch whitespace ###############################################################################
+if($crunchWS) {
+
+unless($append) {
+  for(my $i = 0; $i < @filenames; $i++) {
+    printTableHead("Source File Before Whitespace Removal: $filenames[$i]", "");
+    printTableRow('<pre>'.cleanHTML($filestrings[$i]).'</pre>');
+    printTableFoot;
+    print STDOUT ".";
+  }
+}
+
+sub removeWS {
+  # 0 - item, 1 - filestring, 2 - regular expression
 #  printOut("[Substituting '$_[0]' for ' $_[0] ']\n");
-#  while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
+  while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
+    my $re;
+    if($_[0] eq "+") { $re = '\+'; }
+    elsif($_[0] eq "(" or $_[0] eq ")" or $_[0] eq "{" or $_[0] eq "}") { $re = '\\'.$_[0]; }
+    elsif($_[0] eq "||") { $re = '\|\|'; }
+#    tRow($_[0], $2.$_[0].$4, cleanHTML($2.$3.$4));
+    tRow($re, $2.$_[0].$4, cleanHTML($2.$3.$4));
 #    printOut("$2$_[0]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
-#    if(!$verbose) { print "."; }
-#  }
-#}
+    print STDOUT ".";
+  }
+}
+
 #printBreak("Whitespace: Extracting...");
-#for(my $i = 0; $i < @filestrings; $i++) {
+for(my $i = 0; $i < @filestrings; $i++) {
+  printTableHead("Extracting Whitespace From: $filenames[$i]", "Extracted", "Original");
 #  printOut("[$filenames[$i]]\n");
-#
-#  # = + -
+
+  # = + -
 #  removeWS('=', $filestrings[$i], '\s+=\s+');
 #  removeWS('+', $filestrings[$i], '\s+\+\s+');
 #  removeWS('-', $filestrings[$i], '\s+-\s+');
-#
-#  # < > || && ==
+
+  # < > || && ==
 #  removeWS('<', $filestrings[$i], '\s+<\s+');
 #  removeWS('>', $filestrings[$i], '\s+>\s+');
 #  removeWS('||', $filestrings[$i], '\s+\|\|\s+');
 #  removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
 #  removeWS('==', $filestrings[$i], '\s+==\s+');
-#  
-#  # ( ) { }
+
+  # ( ) { }
 #  removeWS('(', $filestrings[$i], '\s+\(|\(\s+');
 #  removeWS(')', $filestrings[$i], '\s+\)|\)\s+');
 #  removeWS('{', $filestrings[$i], '\s+\{|\{\s+');
 #  removeWS('}', $filestrings[$i], '\s+\}|\}\s+');
-#
-#  # leading and trailing whitespace
-#  $filestrings[$i] =~ s/;\s+/;/g;
-#  $filestrings[$i] =~ s/\n\s*//g;
-#
-#  printOut("[$filenames[$i]]\n");
-#  printOut("$filestrings[$i]\n");
-#}
-#printBreak("Whitespace: Extracted!");
-#
-#}
-#### Done crunching whitespace #########################################################################
-#
-#
-#### Output files ###
-#printBreak("Output files: Writing...");
-#for(my $i = 0; $i < @filenames; $i++) {
-#  printOut("$outputPath$filenames[$i]\n");
-#  open EXTERNAL, "> $outputPath$filenames[$i]" or die "$outputPath$filenames[$i] - $!\n";
-#  print EXTERNAL $filestrings[$i];
-#  close EXTERNAL;
-#  if(!$verbose) { print "."; }
-#}
-#printBreak("Output files: Written!");
-#
-#printBreak("CodeCruncher Finished!");
-#
 
-print "</body>\n</html>\n";
+  # leading and trailing whitespace
+  $filestrings[$i] =~ s/;\s+/;/g;
+  $filestrings[$i] =~ s/\n\s*//g;
+
+  printTableFoot;
+
+  printTableHead("Crunched File: $filenames[$i]", "");
+  printTableRow(cleanHTML($filestrings[$i]));
+  printTableFoot;
+  
+  print STDOUT ".";
+}
+#printBreak("Whitespace: Extracted!");
+
+}
+### Done crunching whitespace #########################################################################
+
+
+### Output files ###
+printTableHead("Writing Output Files", "");
+for(my $i = 0; $i < @filenames; $i++) {
+  printTableRow($outputPath . $filenames[$i]);
+  open EXTERNAL, "> $outputPath$filenames[$i]" or die "$outputPath$filenames[$i] - $!\n";
+  print EXTERNAL $filestrings[$i];
+  close EXTERNAL;
+  print STDOUT ".";
+}
+printTableFoot;
+
+print '<h2>CodeCruncher Finished!</h2>';
+
+print "</body>\n</html>\n" if $crunchWS;
 
 undef $log;
 
 print STDOUT "\n\n";
-
-
-
-
-
-
-
