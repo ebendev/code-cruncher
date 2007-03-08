@@ -321,31 +321,6 @@ print "<h2>Input Path: $inputPath</h2>\n";
 
 
 # search for external files only goes one level deep
-
-sub cleanHTML {
-  (my $str) = @_;
-  $str =~ s/</&lt;/g;
-  $str =~ s/>/&gt;/g;
-  $str =~ s/\n//g;
-  $str;
-}
-
-### Identify JavaScript source files ###
-print "<table>\n";
-print "<caption>External source files (.js)</caption>\n";
-print "<tr><th>File</th><th>From Source Line</th></tr>\n";
-
-while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
-  my $line = cleanHTML($1);
-  my $fname = $2;
-  $filenames[@filenames] = $fname;
-
-  $line =~ s/$fname/<strong>$fname<\/strong>/g;
-  print "<tr><td>$fname</td><td>$line</td></tr>\n";
-  print STDOUT ".";
-}
-print "</table>\n\n";
-
 sub printTableHead {
   my ($caption) = shift @_;
   print "<table>\n";
@@ -364,6 +339,28 @@ sub printTableRow {
 sub printTableFoot {
   print "</table>\n\n";
 }
+
+sub cleanHTML {
+  (my $str) = @_;
+  $str =~ s/</&lt;/g;
+  $str =~ s/>/&gt;/g;
+  $str =~ s/\n//g;
+  $str;
+}
+
+### Identify JavaScript source files ###
+printTableHead("External source files (.js)", "File", "From Source Line");
+while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
+  my $line = cleanHTML($1);
+  my $fname = $2;
+  $filenames[@filenames] = $fname;
+
+  $line =~ s/$fname/<strong>$fname<\/strong>/g;
+  printTableRow($fname, $line);
+  print STDOUT ".";
+}
+printTableFoot;
+
 
 ### Identify CSS source files ###
 printTableHead("External source files (.css)", "File", "From Source Line");
