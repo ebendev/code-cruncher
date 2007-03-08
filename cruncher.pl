@@ -425,31 +425,38 @@ for(my $i = 0; $i < @filestrings; $i++) {
 }
 printTableFoot;
 
-#printBreak("Functions, Variables, and ID's: Identifying...");
-#
-#sub identifyNames {
-#  my ($type, $re) = @_;
-#  for(my $i = 0; $i < @filestrings; $i++) {
+
+
+sub identifyNames {
+  my ($type, $re) = @_;
+  for(my $i = 0; $i < @filestrings; $i++) {
 #    printOut("[$filenames[$i]]\n");
-#    while($filestrings[$i] =~ m/$re/g) {
-#      if(isAvoid($2)) { printOut("Avoided: '$2' [FROM LINE ->] $1\n"); }
-#      elsif(isCollision($2)) { printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n"); }
-#      else {
-#        $names[@names] = $2;
+    while($filestrings[$i] =~ m/$re/g) {
+      if(isAvoid($2)) { 
+        tRow($2, "Avoid", $type, $2, cleanHTML($1), $filenames[$i]);
+#        printOut("Avoided: '$2' [FROM LINE ->] $1\n");
+      }
+      elsif(isCollision($2)) {
+        tRow($2, "Ignore", $type, $2, cleanHTML($1), $filenames[$i]);
+#        printOut("Ignored Repeat: '$2' [FROM LINE ->] $1\n");
+      }
+      else {
+        $names[@names] = $2;
 #        printOut("Identified $type: '$2' [FROM LINE ->] $1\n");
-#      }
-#      if(!$verbose) { print "."; }
-#    }
-#  }
-#}
-#
-#identifyNames("Variable", '\n?(.*var\s+(\w+).*)');
-#identifyNames("Function", '\n?(.*function\s+(\w+)\s*\(.*)');
-#identifyNames("ID", '\n?(.*id="(\w+)".*)');
-#identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
-#
-#printBreak("Functions, Variables, and ID's: Identified!");
-#
+        tRow($2, "Rename", $type, $2, cleanHTML($1), $filenames[$i]);
+      }
+      print STDOUT ".";
+    }
+  }
+}
+
+printTableHead("Functions, Variables, and ID's", "Status", "Type", "Name", "From Source Line", "File");
+identifyNames("Variable", '\n?(.*var\s+(\w+).*)');
+identifyNames("Function", '\n?(.*function\s+(\w+)\s*\(.*)');
+identifyNames("ID", '\n?(.*id="(\w+)".*)');
+identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
+printTableFoot;
+
 #printBreak("Functions, Variables, and ID's: Renaming...");
 #my @abbr;
 #my $n = @names;
