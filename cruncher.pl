@@ -440,9 +440,12 @@ for(my $i = 0; $i < @filestrings; $i++) {
   }
 
   # C++ style single-line comments // - and then ;//
-  while($filestrings[$i] =~ s"(^//.*)"") { printTableRow(cleanHTML($1), $filenames[$i]); }
-  while($filestrings[$i] =~ s"(\s//.*)"") { printTableRow(cleanHTML($1), $filenames[$i]); }
-  while($filestrings[$i] =~ s";(//.*)";") { printTableRow(cleanHTML($1), $filenames[$i]); }
+  while($filestrings[$i] =~ s"(^//.*)"") {  # should be s///m?
+    printTableRowBold('//', cleanHTML($1), $filenames[$i]);
+#    printTableRow(cleanHTML($1), $filenames[$i]);
+  }
+  while($filestrings[$i] =~ s"(\s//.*)"") { printTableRowBold('//', cleanHTML($1), $filenames[$i]); }
+  while($filestrings[$i] =~ s";(//.*)";") { printTableRowBold('//', cleanHTML($1), $filenames[$i]); }
 
   print STDOUT ".";
 }
