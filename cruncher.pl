@@ -373,16 +373,6 @@ sub cleanHTML {
 ### Identify JavaScript source files ###
 printTableHead("External source files (.js)", "File", "From Source Line");
 while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
-  #my $line = cleanHTML($1);
-  #my $fname = $2;
-  #$filenames[@filenames] = $fname;
-
-  #$line =~ s/$fname/<strong>$fname<\/strong>/g;
-  #tRow($fname, $fname, $line);
-
-  #my $fname = $1;
-  #push @filenames, $fname;
-  
   push @filenames, $2;
   tRow($2, $2, cleanHTML($1));
   print STDOUT ".";
@@ -393,16 +383,6 @@ printTableFoot;
 ### Identify CSS source files ###
 printTableHead("External source files (.css)", "File", "From Source Line");
 while($filestrings[0] =~ m/\n?(.*url\((.*\.css)\).*)/g) {
-#  my $line = cleanHTML($1);
-#  my $fname = $2;
-#  $filenames[@filenames] = $fname;
-#
-#  $line =~ s/$fname/<strong>$fname<\/strong>/g;
-#  tRow($fname, $fname, $line);
-
-#  my $fname = $1;
-#  push(@filenames, $fname);
-#  tRow($1, $1, cleanHTML($1));
   push @filenames, $2;
   tRow($2, $2, cleanHTML($1));
   print STDOUT ".";
