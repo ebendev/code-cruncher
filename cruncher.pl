@@ -8,19 +8,20 @@ use Cwd;
 
 ### Globals ######################
  # Path strings
-my $inputPath;
+my $inputPath = '';
 my $outputPath;
 
 my @names; # all identifiers in the general namespace: functions, variables, ids
-#my @avoid = qw(rows HistoryDiv); # list of strings not to crunch
 my @avoid = qw(); # list of strings not to crunch
 
  # Source files
 my @filenames;
 my @filestrings;
+my @updatePaths;
 
- # Test module
-my $teststring;
+my $logPath;
+my $profilePath;
+my $log;
 
 # Command line variables
 my $crunchNames = 1; # default ON
@@ -29,46 +30,8 @@ my $warningsOn = 1; # default ON
 my $verbose = 0; # default off
 my $append = 0; # default off
 
-my $rootPath;
-#my $outputPath;
-my @updatePaths;
-my $logPath;
-my $profilePath;
-my $log;
-
 
 ### Subroutines ######################
-sub printBreak {
-  my ($str) = @_;
-  my $i = 0;
-  if($verbose) {
-    print "===> $str <===";
-    print "=" while($i++ < 69 - length $str);
-    print "\n";
-  }
-#  $i = 0;
-#  if(defined $log) {
-#    print $log "===> $str <===";
-#    print $log "=" while($i++ < 69 - length $str);
-#    print $log "\n";
-#  }
-  if(defined $log) {
-    print $log "</table>\n<table>\n";
-    print $log "<caption>$str</caption>\n";
-  }
-}
-sub printOut {
-  my ($str) = @_;
-  if($verbose) { print $str; }
-  if(defined $log) {
-    $str =~ s/</&lt;/g;
-    $str =~ s/>/&gt;/g;
-    #$str =~ s/\n//g;
-
-    print $log "<tr><td><pre>$str</pre></td></tr>\n";
-  }
-}
-
 #a b c d e f g h i j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
 #0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
 sub alphabase {
@@ -105,227 +68,6 @@ sub isAvoid {
   }
 }
 
-
-### -> Script Execution Entry Point <- #################################################################################
-### Process command line options #################################################################################################
-## -ws            crunch whitespace
-## --ws-only      crunch only whitespace
-## --no-warnings  crunch without asking for user approval
-## -verbose       (deprecated) output log info to screen
-## --append-log   append to the log file, instead of replacing it
-## -root:path     specify path to index.html or equivalent starting point (only one root may be given)
-## -output:path   specify path to the output root (only one output root may be given)
-## -update:path   specify path (relative to root) to any unconnected, but dependent modules, like tests, that need to have the updated names
-## -avoid:name    specify the name of a function, variable, or ID that should not be crunched
-## -log:path      specify the path to the log file (default is log.html in current working directory)
-## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
-##                  will override those found in the profile
-##################################################################################################################################
-
-# Load profile, if present
-#load into @argv
-
-
-my $dir = getcwd;
-#print $dir;
-print "\n";
-
-foreach my $el (@ARGV) {
-  if($el =~ /-ws(?!.)/) { $crunchWS = 1; }
-  elsif($el =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
-  elsif($el =~ /--no-warnings/) { $warningsOn = 0; }
-  #elsif($el =~ /-verbose/) { $verbose = 1; }
-  elsif($el =~ /--append-log/) { $append = 1; }
-  elsif($el =~ /-root:(.+)/) {
-    if(defined($rootPath)) { print "$el ignored. You may only specify one root.\n"; }
-    else { $rootPath = $1; }
-  }
-  elsif($el =~ /-output:(.+)/) {
-    if(defined($outputPath)) { print "$el ignored. You may only specify one output root.\n"; }
-    else { $outputPath = $1; }
-  }
-  elsif($el =~ /-update:(.+)/) { $updatePaths[@updatePaths] = $1; }
-  elsif($el =~ /-avoid:(.+)/) { push @avoid, $1; }
-  elsif($el =~ /-log:(.+)/) {
-    if(defined($logPath)) { print "$el ignored. You may only specify one log file.\n"; }
-    else { $logPath = $1; }
-  }
-  elsif($el =~ /-profile:(.+)/) {
-    if(defined($profilePath)) { print "$el ignored. You may only specify one profile.\n"; }
-    else {
-      print "Profile option not yet supported.\n";
-      #$profilePath = $1;
-    }
-  }
-  else { print "'$el' ignored. Unrecognized option.\n"; }
-}
-print "\n";
-
-#my $fh;
-#
-#if(defined($profilePath)) {
-#  $fh = new FileHandle("< $profilePath");
-#  if(!defined($fh)) { print "Could not open specified profile: $profilePath. Ignoring...\n"; }
-#  else { print "Opened profile: $profilePath\n"; }
-#}
-#
-#if(defined($fh)) {
-#  print "Additional command line options: \n";
-#
-#  my $profileStr = "";
-#  while(<$fh>) { $profileStr .= $_; }
-#
-#
-#  print $profileStr;
-#  print "\n\n";
-#  undef $fh; # automatically closes the file
-#}
-
-$rootPath =~ s/\\/\//g;
-if(!defined($logPath)) { $logPath = "log.html"; }
-
-if(@ARGV < 1 or !defined($rootPath)) {
-  print "\nRoot page not specified.  Correct form must include:\n\$ cruncher.pl -root:path/to/index.html/or/equivalent\n";
-  exit 1;
-}
-
-#print "crunchNames = $crunchNames\n";
-#print "crunchWS = $crunchWS\n";
-#print "warningsOn = $warningsOn\n";
-#print "verbose = $verbose\n";
-#if(defined($rootPath)) { print "rootPath = $rootPath\n"; }
-#if(defined($outputPath)) { print "outputPath = $outputPath\n"; }
-#if(@updatePaths > 0) {
-#  print "updatePaths = ";
-#  print @updatePaths;
-#  print "\n";
-#}
-#if(defined($logPath)) { print "logPath = $logPath\n"; }
-#if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
-
-print "\n";
-
-
-# Open root
-#my $rootStr;
-{
-  $rootPath =~ s/\\/\//g;
-  my $fh = new FileHandle "< $rootPath";
-  if(!defined($fh)) {
-    print "Could not open root page: '$rootPath'\n\nExiting...\n\n";
-    exit 1;
-  }
-  #while(<$fh>) { $rootStr .= $_; }
-  while(<$fh>) { $filestrings[0] .= $_; }
-}
-
-# Open Log
-{
-  if($append) { $log = new FileHandle ">>$logPath"; }
-  else { $log = new FileHandle "> $logPath"; }
-  if(!defined($log)) {
-#    print "Could not open log file for writing.\nSwitching to verbose mode.\n\n";
-#    $verbose = 1;
-    print "Could not open log file for writing.\nExiting...\n\n";
-    exit 1;
-  }
-  else { select $log; }
-}
-
-# Isolate relative input path, filename
-if($rootPath =~ /([^\/]+)$/) {
-  $filenames[0] = $1;
-  if($rootPath =~ /(.*\/?)$filenames[0]/) {
-    $inputPath = $1;
-  }
-}
-if(!defined($outputPath)) { $outputPath = $inputPath; }
-
-
-print STDOUT "Please wait while code is crunched.\n\n" if $crunchNames;
-print STDOUT "Please wait while whitespace is crunched.\n\n" if($crunchWS && !$crunchNames);
-
-#####################################
-## Start Meaningful HTML Logging
-#####################################
-unless($append) {
-print '<?xml version="1.0" encoding="UTF-8"?>', "\n";
-print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', "\n";
-print '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">', "\n";
-print "<head>\n<title>Cruncher Log</title>\n";
-
-print "<style>\n";
-print 'body { font: 75%/1.6 "Myriad Pro", Frutiger, "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", Verdana, sans-serif; }';
-#print 'body { font: 10pt "Courier New", monospace; }';
-#print 'strong { font-size: 12pt; }';
-print 'table { border-collapse: collapse; width: 85em; border: 1px solid #666; }';
-print 'caption { font-size: 1.2em; font-weight: bold; margin: 1em 0; }';
-print 'col { border-right: 1px solid #ccc; }';
-#print 'thead { background: #ccc url(images/bar.gif) repeat-x left center; border-top: 1px solid #a5a5a5; border-bottom: 1px solid #a5a5a5; }';
-print 'th { background: #bbb; font-weight: normal; text-align: left; }';
-print 'th, td { padding: 0.1em 1em; }';
-print 'td { font: 10pt "Courier New", monospace; }';
-print 'tr:hover { background-color: #3d80df; color: #fff; }';
-print 'thead tr:hover { background-color: transparent; color: inherit; }';
-#  print $log '.even {
-#  background-color: #edf5ff;
-#}
-#
-#.odd {
-#  background-color: inherit;
-#}
-#
-#.pass {
-#  border: none;
-#  font-weight: bold;
-#  color: green;
-#}
-#
-#.pass:hover {
-#  color: white;
-#}
-#
-#.fail {
-#  border: none;
-#  font-weight: bold;
-#  color: red;
-#}
-#
-#.fail:hover {
-#  color: white;
-#}
-#
-#.inputcell {
-#  font-weight: bold;
-#  border-bottom: solid black 1px;
-#  border-top: solid black 1px;
-#  border-right: solid black 1px;
-#  border-left: solid black 1px;
-#}';
-#
-print "\n</style>\n<script>\n";
-print '';
-
-print "\n</script>\n</head>\n<body>\n";
-}
-
-#sub printHeading {
-#  my ($str, $type) = @_;
-#  print "
-#}
-
-#printHeading("CodeCruncher Copyright 2007 Eben Geer", 1);
-#printHeading("Input Path: $inputPath", 2);
-
-#printBreak("CodeCruncher Copyright 2007 Eben Geer");
-#printBreak("Input Path: $inputPath");
-
-print "<h1>CodeCruncher &copy; 2007 Eben Geer</h1>\n";
-print "<h2>Input Path: $inputPath</h2>\n";
-
-
-
-# search for external files only goes one level deep
 sub printTableHead {
   my ($caption) = shift @_;
   print "<table>\n";
@@ -368,14 +110,133 @@ sub printTableFoot {
 
 sub cleanHTML {
   (my $str) = @_;
-#  print STDOUT $str, "\n";
   $str =~ s/</&lt;/g;
   $str =~ s/>/&gt;/g;
   $str =~ s/\n$//;
-#  print STDOUT $str, "\n";
   $str;
 }
 
+### -> Script Execution Entry Point <- #################################################################################
+print "\n";
+### Process command line options #################################################################################################
+## -ws            crunch whitespace
+## --ws-only      crunch only whitespace
+## --no-warnings  crunch without asking for user approval
+## --append-log   append to the log file, instead of replacing it
+## -root:path     specify path to index.html or equivalent starting point (only one root may be given)
+## -output:path   specify path to the output root (only one output root may be given)
+## -update:path   specify path (relative to root) to any unconnected, but dependent modules, like tests, that need to have the updated names
+## -avoid:name    specify the name of a function, variable, or ID that should not be crunched
+## -log:path      specify the path to the log file (default is log.html in current working directory)
+## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
+##                  will override those found in the profile - not yet implemented
+##################################################################################################################################
+for (@ARGV) {
+  $_ =~ s/\\/\//g;
+  if($_ =~ /-ws(?!.)/) { $crunchWS = 1; }
+  elsif($_ =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
+  elsif($_ =~ /--no-warnings/) { $warningsOn = 0; }
+  elsif($_ =~ /--append-log/) { $append = 1; }
+  elsif($_ =~ /-root:(.+)/) {
+    if(@filenames) { print "$_ ignored. You may only specify one root.\n"; }
+    else { ($inputPath, $filenames[0]) = $1 =~ '(.*/)?([^/]+)$'; }
+  }
+  elsif($_ =~ /-output:(.+)/) {
+    if(defined($outputPath)) { print "$_ ignored. You may only specify one output root.\n"; }
+    else { $outputPath = $1; }
+  }
+  elsif($_ =~ /-update:(.+)/) { push @updatePaths, $1; }
+  elsif($_ =~ /-avoid:(.+)/) { push @avoid, $1; }
+  elsif($_ =~ /-log:(.+)/) {
+    if(defined($logPath)) { print "$_ ignored. You may only specify one log file.\n"; }
+    else { $logPath = $1; }
+  }
+  elsif($_ =~ /-profile:(.+)/) {
+    if(defined($profilePath)) { print "$_ ignored. You may only specify one profile.\n"; }
+    else { print "Profile option not yet supported.\n"; }
+  }
+  else { print "'$_' ignored. Unrecognized option.\n"; }
+}
+
+print "\n";
+
+if(!defined($logPath)) { $logPath = "log.html"; }
+if(!defined($outputPath)) { $outputPath = $inputPath; }
+
+if(@ARGV < 1 or !@filenames) {
+  print "\nRoot page not specified.  Correct form must include:\n\$ cruncher.pl -root:path/to/index.html/or/equivalent\n";
+  exit 1;
+}
+
+print "\n";
+
+### Useful to check/debug command line processing ################################
+#print "crunchNames = $crunchNames\n";
+#print "crunchWS = $crunchWS\n";
+#print "warningsOn = $warningsOn\n";
+#print "append = $append\n";
+#print "filenames = @filenames\n";
+#if(defined($outputPath)) { print "outputPath = $outputPath\n"; }
+#print "updatePaths = @updatePaths\n";
+#print "avoid = @avoid\n";
+#if(defined($logPath)) { print "logPath = $logPath\n"; }
+#if(defined($profilePath)) { print "profilePath = $profilePath\n"; }
+#exit;
+##################################################################################
+
+# Open root
+{
+  my $fh = new FileHandle "< $filenames[0]";
+  if(!defined($fh)) {
+    print "Could not open root page: '$filenames[0]'\n\nExiting...\n\n";
+    exit 1;
+  }
+  while(<$fh>) { $filestrings[0] .= $_; }
+}
+
+# Open Log
+{
+  if($append) { $log = new FileHandle ">>$logPath"; }
+  else { $log = new FileHandle "> $logPath"; }
+  if(!defined($log)) {
+    print "Could not open log file for writing.\nExiting...\n\n";
+    exit 1;
+  }
+  else { select $log; }
+}
+
+print STDOUT "Please wait while code is crunched.\n\n" if $crunchNames;
+print STDOUT "Please wait while whitespace is crunched.\n\n" if($crunchWS && !$crunchNames);
+
+#####################################
+## Begin Meaningful HTML Logging
+#####################################
+unless($append) {
+  print '<?xml version="1.0" encoding="UTF-8"?>', "\n";
+  print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', "\n";
+  print '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">', "\n";
+  print "<head>\n<title>Cruncher Log</title>\n";
+
+  print "<style>\n";
+  print 'body { font: 75%/1.6 "Myriad Pro", Frutiger, "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", Verdana, sans-serif; }';
+  print 'table { border-collapse: collapse; width: 85em; border: 1px solid #666; }';
+  print 'caption { font-size: 1.2em; font-weight: bold; margin: 1em 0; }';
+  print 'col { border-right: 1px solid #ccc; }';
+  print 'th { background: #bbb; font-weight: normal; text-align: left; }';
+  print 'th, td { padding: 0.1em 1em; }';
+  print 'td { font: 10pt "Courier New", monospace; }';
+  print 'tr:hover { background-color: #3d80df; color: #fff; }';
+  print 'thead tr:hover { background-color: transparent; color: inherit; }';
+  print "\n</style>\n";
+
+  print "<script>\n";
+  print "\n</script>\n</head>\n<body>\n";
+}
+
+print "<h1>CodeCruncher &copy; 2007 Eben Geer</h1>\n";
+print "<h2>Input Path: $inputPath</h2>\n";
+
+# search for external files only goes one level deep
 ### Identify JavaScript source files ###
 printTableHead("External source files (.js)", "File", "From Source Line");
 while($filestrings[0] =~ m/\n?(.*src="(.*\.js).*)/g) {
