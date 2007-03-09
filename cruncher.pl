@@ -398,20 +398,20 @@ for(my $i = 0; $i < @filestrings; $i++) {
   # = + -
   removeWS('=', $filestrings[$i], '\s+=\s+');
   removeWS('+', $filestrings[$i], '\s+\+\s+');
-#  removeWS('-', $filestrings[$i], '\s+-\s+');
+  removeWS('-', $filestrings[$i], '\s+-\s+');
 
   # < > || && ==
-#  removeWS('<', $filestrings[$i], '\s+<\s+');
-#  removeWS('>', $filestrings[$i], '\s+>\s+');
+  removeWS('<', $filestrings[$i], '\s+<\s+');
+  removeWS('>', $filestrings[$i], '\s+>\s+');
 #  removeWS('||', $filestrings[$i], '\s+\|\|\s+');
-#  removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
-#  removeWS('==', $filestrings[$i], '\s+==\s+');
+  removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
+  removeWS('==', $filestrings[$i], '\s+==\s+');
 
   # ( ) { }
-#  removeWS('(', $filestrings[$i], '\s+\(|\(\s+');
-#  removeWS(')', $filestrings[$i], '\s+\)|\)\s+');
-#  removeWS('{', $filestrings[$i], '\s+\{|\{\s+');
-#  removeWS('}', $filestrings[$i], '\s+\}|\}\s+');
+  removeWS('(', $filestrings[$i], '\s+\(|\(\s+');
+  removeWS(')', $filestrings[$i], '\s+\)|\)\s+');
+  removeWS('{', $filestrings[$i], '\s+\{|\{\s+');
+  removeWS('}', $filestrings[$i], '\s+\}|\}\s+');
 
   # leading and trailing whitespace
   $filestrings[$i] =~ s/;\s+/;/g;
