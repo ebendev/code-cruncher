@@ -384,7 +384,7 @@ sub removeWS {
 
     if($_[0] eq "+") { $re = '\+'; }
     elsif($_[0] eq "(" or $_[0] eq ")" or $_[0] eq "{" or $_[0] eq "}") { $re = '\\'.$_[0]; }
-    elsif($_[0] eq "||") { $re = '\|\|'; }
+#    elsif($_[0] eq "||") { $re = '\|\|'; }
 
     tRow($re, "$2$_[0]$4", cleanHTML("$2$3$4"));
     print STDOUT ".";
@@ -403,7 +403,7 @@ for(my $i = 0; $i < @filestrings; $i++) {
   # < > || && ==
   removeWS('<', $filestrings[$i], '\s+<\s+');
   removeWS('>', $filestrings[$i], '\s+>\s+');
-#  removeWS('||', $filestrings[$i], '\s+\|\|\s+');
+  removeWS('||', $filestrings[$i], '\s+\|\|\s+');
   removeWS('&&', $filestrings[$i], '\s+\&\&\s+');
   removeWS('==', $filestrings[$i], '\s+==\s+');
 
