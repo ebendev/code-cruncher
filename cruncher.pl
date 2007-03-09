@@ -116,6 +116,7 @@ sub isAvoid {
 ## -root:path     specify path to index.html or equivalent starting point (only one root may be given)
 ## -output:path   specify path to the output root (only one output root may be given)
 ## -update:path   specify path (relative to root) to any unconnected, but dependent modules, like tests, that need to have the updated names
+## -avoid:name    specify the name of a function, variable, or ID that should not be crunched
 ## -log:path      specify the path to the log file (default is log.html in current working directory)
 ## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
 ##                  will override those found in the profile
@@ -144,6 +145,7 @@ foreach my $el (@ARGV) {
     else { $outputPath = $1; }
   }
   elsif($el =~ /-update:(.+)/) { $updatePaths[@updatePaths] = $1; }
+  elsif($el =~ /-avoid:(.+)/) { push @avoid, $1; }
   elsif($el =~ /-log:(.+)/) {
     if(defined($logPath)) { print "$el ignored. You may only specify one log file.\n"; }
     else { $logPath = $1; }
@@ -255,6 +257,7 @@ print "<head>\n<title>Cruncher Log</title>\n";
 print "<style>\n";
 print 'body { font: 75%/1.6 "Myriad Pro", Frutiger, "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", Verdana, sans-serif; }';
 #print 'body { font: 10pt "Courier New", monospace; }';
+#print 'strong { font-size: 12pt; }';
 print 'table { border-collapse: collapse; width: 85em; border: 1px solid #666; }';
 print 'caption { font-size: 1.2em; font-weight: bold; margin: 1em 0; }';
 print 'col { border-right: 1px solid #ccc; }';
@@ -356,7 +359,6 @@ sub tRow {
       }
     }
   }
-
   printTableRow(@cells);
 }
 
@@ -366,9 +368,11 @@ sub printTableFoot {
 
 sub cleanHTML {
   (my $str) = @_;
+#  print STDOUT $str, "\n";
   $str =~ s/</&lt;/g;
   $str =~ s/>/&gt;/g;
-  $str =~ s/\n$//g;
+  $str =~ s/\n$//;
+#  print STDOUT $str, "\n";
   $str;
 }
 
@@ -531,12 +535,12 @@ sub removeWS {
   # 0 - item, 1 - filestring, 2 - regular expression
 #  printOut("[Substituting '$_[0]' for ' $_[0] ']\n");
   while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
-    my $re;
+    my $re = $_[0];
     if($_[0] eq "+") { $re = '\+'; }
     elsif($_[0] eq "(" or $_[0] eq ")" or $_[0] eq "{" or $_[0] eq "}") { $re = '\\'.$_[0]; }
     elsif($_[0] eq "||") { $re = '\|\|'; }
 #    tRow($_[0], $2.$_[0].$4, cleanHTML($2.$3.$4));
-    tRow($re, $2.$_[0].$4, cleanHTML($2.$3.$4));
+    tRow($re, "$2$_[0]$4", cleanHTML("$2$3$4"));
 #    printOut("$2$_[0]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
     print STDOUT ".";
   }
@@ -548,8 +552,8 @@ for(my $i = 0; $i < @filestrings; $i++) {
 #  printOut("[$filenames[$i]]\n");
 
   # = + -
-#  removeWS('=', $filestrings[$i], '\s+=\s+');
-#  removeWS('+', $filestrings[$i], '\s+\+\s+');
+  removeWS('=', $filestrings[$i], '\s+=\s+');
+  removeWS('+', $filestrings[$i], '\s+\+\s+');
 #  removeWS('-', $filestrings[$i], '\s+-\s+');
 
   # < > || && ==
