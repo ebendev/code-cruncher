@@ -54,18 +54,12 @@ sub isKeyword {
 
 sub isCollision {
   my ($str) = @_;
-
-  foreach my $el (@names) {
-    return 1 if $str eq $el;
-  }
+  for(@names) { return 1 if $str eq $_; }
 }
 
 sub isAvoid {
   my ($str) = @_;
-
-  foreach my $el (@avoid) {
-    return 1 if $str eq $el;
-  }
+  for(@avoid) { return 1 if $str eq $_; }
 }
 
 sub printTableHead {
@@ -94,8 +88,7 @@ sub tRow {
     }
     for my $el (@cells) {
       for(@bold) {
-        my $re = $_;
-        my $str = $re;
+        my $re = my $str = $_;
         $str =~ s/\\//g;
         $el =~ s/$re/<strong>$str<\/strong>/;
       }
@@ -131,7 +124,7 @@ print "\n";
 ## -profile:path  specify the path to a config file which holds the command line options desired (any given command line options
 ##                  will override those found in the profile - not yet implemented
 ##################################################################################################################################
-for (@ARGV) {
+for(@ARGV) {
   $_ =~ s/\\/\//g;
   if($_ =~ /-ws(?!.)/) { $crunchWS = 1; }
   elsif($_ =~ /--ws-only/) { $crunchWS = 1; $crunchNames = 0; }
@@ -186,9 +179,9 @@ print "\n";
 
 # Open root
 {
-  my $fh = new FileHandle "< $filenames[0]";
+  my $fh = new FileHandle "< $inputPath$filenames[0]";
   if(!defined($fh)) {
-    print "Could not open root page: '$filenames[0]'\n\nExiting...\n\n";
+    print "Could not open root page: '$inputPath$filenames[0]'\n\nExiting...\n\n";
     exit 1;
   }
   while(<$fh>) { $filestrings[0] .= $_; }
@@ -292,8 +285,6 @@ for(my $i = 0; $i < @filestrings; $i++) {
 }
 printTableFoot;
 
-
-
 sub identifyNames {
   my ($type, $re) = @_;
   for(my $i = 0; $i < @filestrings; $i++) {
@@ -305,7 +296,7 @@ sub identifyNames {
         tRow($2, "Ignore", $type, $2, cleanHTML($1), $filenames[$i]);
       }
       else {
-        $names[@names] = $2;
+        push @names, $2;
         tRow($2, "Rename", $type, $2, cleanHTML($1), $filenames[$i]);
       }
       print STDOUT ".";
@@ -320,7 +311,6 @@ identifyNames("ID", '\n?(.*id="(\w+)".*)');
 identifyNames("Name", '\n?(.*(?<!meta )name="(\w+)".*)');
 printTableFoot;
 
-#printTableHead("Renaming Functions, Variables, and ID's", "Name", "Source Line", "File");
 my @abbr;
 my $n = @names;
 my $offset = 0;
@@ -343,27 +333,22 @@ for(my $j = 0; $j < @names; $j++) {
 }
 printTableFoot;
 
-#if(@updatePaths > 0) {
 for my $el (@updatePaths) {
   printTableHead("Updating dependent module: $el", "Abbr.", "Source Line", "Name", "From Source Line", "From File");
-#  printBreak("Updating dependent module: $el");
   open MODULEIN, "< $inputPath$el" or die "$inputPath$el  could not be opened for input. - $!\n";
   my $fstr;
   while(<MODULEIN>) { $fstr .= $_; }
   close MODULEIN;
 
   for(my $j = 0; $j < @names; $j++) {
-#    printOut("[Substituting '$abbr[$j]' for '$names[$j]']\n");
     while($fstr =~ s/(\n?)(.*)(?<![\w<"])(?<!== ')($names[$j])(?! ?[\w])(?![">])(.*)/$1$2$abbr[$j]$4/) {   # only difference is " & "
       tRow("$abbr[$j]|$3", $abbr[$j], cleanHTML("$2$abbr[$j]$4"), $3, cleanHTML("$2$3$4"), $el);
-#      printOut("$2$abbr[$j]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
       print STDOUT ".";
     }
   }
   open MODULEOUT, "> $outputPath$el" or die "$outputPath$el could not be opened for output. - $!\n";
   print MODULEOUT $fstr;
   close MODULEOUT;
-  #printBreak("Updated dependent module: $el");
   printTableFoot;
 }
 
@@ -394,15 +379,14 @@ unless($append) {
 
 sub removeWS {
   # 0 - item, 1 - filestring, 2 - regular expression
-#  printOut("[Substituting '$_[0]' for ' $_[0] ']\n");
   while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
     my $re = $_[0];
+
     if($_[0] eq "+") { $re = '\+'; }
     elsif($_[0] eq "(" or $_[0] eq ")" or $_[0] eq "{" or $_[0] eq "}") { $re = '\\'.$_[0]; }
     elsif($_[0] eq "||") { $re = '\|\|'; }
-#    tRow($_[0], $2.$_[0].$4, cleanHTML($2.$3.$4));
+
     tRow($re, "$2$_[0]$4", cleanHTML("$2$3$4"));
-#    printOut("$2$_[0]$4 [SUBSTITUTED FOR ->] $2$3$4\n");
     print STDOUT ".";
   }
 }
@@ -410,7 +394,6 @@ sub removeWS {
 #printBreak("Whitespace: Extracting...");
 for(my $i = 0; $i < @filestrings; $i++) {
   printTableHead("Extracting Whitespace From: $filenames[$i]", "Extracted", "Original");
-#  printOut("[$filenames[$i]]\n");
 
   # = + -
   removeWS('=', $filestrings[$i], '\s+=\s+');
@@ -439,10 +422,9 @@ for(my $i = 0; $i < @filestrings; $i++) {
   printTableHead("Crunched File: $filenames[$i]", "");
   printTableRow(cleanHTML($filestrings[$i]));
   printTableFoot;
-  
+
   print STDOUT ".";
 }
-#printBreak("Whitespace: Extracted!");
 
 }
 ### Done crunching whitespace #########################################################################
@@ -460,7 +442,6 @@ for(my $i = 0; $i < @filenames; $i++) {
 printTableFoot;
 
 print '<h2>CodeCruncher Finished!</h2>';
-
 print "</body>\n</html>\n" if $crunchWS;
 
 undef $log;
