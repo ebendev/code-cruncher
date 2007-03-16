@@ -379,7 +379,7 @@ unless($append) {
 
 sub removeWS {
   # 0 - item, 1 - filestring, 2 - regular expression
-  while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(.*)/$1$2$_[0]$4/) {
+  while($_[1] =~ s/(\n?)(.*)(?<!')($_[2])(?!')(?!no-repeat)(.*)/$1$2$_[0]$4/) {
     my $re = $_[0];
 
     if($_[0] eq "+") { $re = '\+'; }
